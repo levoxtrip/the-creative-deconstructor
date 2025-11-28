@@ -1,0 +1,99 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  padding: 40px 20px;
+  margin-bottom: 20px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr); /* CHANGED: Added minmax to force content to use full width */
+  gap: 20px;
+  width: 100%; /* ADDED: Ensures layout uses full container width */
+}
+/* ---------------------TAB BAR---------------*/
+.tabbar{
+
+    padding: 20px;
+  border-radius: 8px;
+}
+
+.section-tab{
+  background: none;
+  border-radius: 8px;
+  padding:20px;
+  margin: 30px;
+  color: white;
+   box-sizing: border-box; /* ADDED: Includes padding in width calculation */
+   font-size: 22px;
+}
+
+.section-tab:active{
+
+}
+
+
+
+/* ---------------------SIDE BAR---------------*/
+.sidebar {
+  background: #2a2a2a;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.category-group {
+  margin-bottom: 20px;
+}
+
+.category-group h3 {
+  font-size: 16px;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.article-item {
+  padding: 8px 12px;
+  margin: 4px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.article-item:hover {
+  background: #3a3a3a;
+}
+
+.article-item:active {
+  background: #cc0000;
+  color: white;
+}
+
+.article-content {
+  background: #2a2a2a;
+  padding: 40px;
+  border-radius: 8px;
+  line-height: 1.6;
+  text-align: left;
+  width: 100%; /* ADDED: Forces content to use full available width */
+  box-sizing: border-box; /* ADDED: Includes padding in width calculation */
+}
