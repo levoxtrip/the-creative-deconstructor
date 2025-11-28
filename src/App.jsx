@@ -6,18 +6,19 @@ import Footer from './components/Footer'
 import './index.css'
 import Sidebar from './components/Sidebar'
 import ArticleContent from './components/ArticleContent'
+import CategoryPage from './components/CategoryPage'
 import { loadArticle } from './utils/articleLoader'
 
 function App() {
   const [articles,setArticles] = useState([])
-  const [selectedArticle,setSelected] = useState(null);
+  const [selectedArticle,setSelectedArticle] = useState(null);
   const [selectedCategory,setSelectedCategory] = useState(null)
   const [currentSection,setCurrentSection] = useState('home');
 
   useEffect(()=>{
     loadArticle().then(data => {
       setArticles(data)
-      setSelected(data[0])
+      setSelectedArticle(data[0])
     })
   },[])
 
@@ -25,13 +26,22 @@ function App() {
     const indexArticle = articles.find(article => article.section === currentSection && article.title === 'index');
 
     if(indexArticle){
-      setSelected(indexArticle);
+      setSelectedArticle(indexArticle);
     }
   },[currentSection])
 
   const sectionArticles = articles.filter(article => article.section == currentSection);
 
   const categoryArticles = sectionArticles.filter(article => JSON.stringify(article.categoryPath) === JSON.stringify(selectedCategory))
+
+  const uniqueCategories = [...new Set(
+  sectionArticles.map(article => JSON.stringify(article.categoryPath))
+)].map(str => JSON.parse(str))
+
+  const handleArticleSelect = (article) => {
+    setSelectedArticle(article)
+    setSelectedCategory(null)
+  }
 
 
   return (
@@ -46,9 +56,8 @@ function App() {
     <Layout
     sidebar={ currentSection!=='home' ?
       <Sidebar
-      articles={sectionArticles}
-      selected={selectedArticle}
-      onSelect={setSelected}
+      categories={uniqueCategories}
+      onCategorySelect={setSelectedCategory}
       />
       :null
     }
@@ -57,6 +66,7 @@ function App() {
       <CategoryPage
       category={selectedCategory}
       articles={categoryArticles}
+      onSelect={handleArticleSelect}
       
       /> :       
        <ArticleContent content={selectedArticle?.content}/>
