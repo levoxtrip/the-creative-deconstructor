@@ -1,17 +1,5 @@
 
 function Sidebar({categories,onCategorySelect}){
-    // //Group Articles
-
-    // const grouped = {}
-    // articles.forEach(article => {
-    //     const category = article.category || 'uncategorized'
-    //     //if category doesnt exist jet create new empty list entry into grouped
-    //     if(!grouped[category]){
-    //         grouped[category] = []
-    //     }
-    //     grouped[category].push(article)
-    // })
-    
     
    return (
   <div>

@@ -1,19 +1,22 @@
 function CategoryPage({category,articles,onSelect}){
 
     return(
-        <div>
+        <div className="category-page">
             <h1>{category.join('/')}</h1>
+            <p>Here are all articles:</p>
+            <br/>
             <ul>
             {
                 articles.map(article=>(
-                    <li 
+                    
+                    <p 
                     key={article.id}
                     onClick={()=>onSelect(article)}
                     style={{cursor:'pointer'}}
                     >
                         {article.title}
 
-                    </li>
+                    </p>
                 ))}
             </ul>
         </div>

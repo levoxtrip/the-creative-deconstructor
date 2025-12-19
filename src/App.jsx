@@ -24,10 +24,12 @@ function App() {
 
   useEffect(()=>{
     const indexArticle = articles.find(article => article.section === currentSection && article.title === 'index');
-
+ 
     if(indexArticle){
       setSelectedArticle(indexArticle);
+      setSelectedCategory(null)
     }
+    console.log(currentSection)
   },[currentSection])
 
   const sectionArticles = articles.filter(article => article.section == currentSection);
