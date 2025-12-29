@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown'
 import P5Sketch from './P5Sketch'
+import GLSLShader from './GLSLShader'
 
 // Custom renderer that handles special code blocks
 const IMAGE_BASE_PATH = '..assets/img'
@@ -24,6 +25,10 @@ function MarkdownRenderer({ content }) {
           // Render p5js blocks as interactive
           if (!inline && language === 'p5js') {
             return <P5Sketch code={String(children).replace(/\n$/, '')} />
+          }
+
+          if (!inline && language === 'glsl') {
+            return <GLSLShader code={String(children).replace(/\n$/, '')} />
           }
           
           // Regular code blocks
