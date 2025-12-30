@@ -236,3 +236,12 @@ body {
   color: #888;
   margin-top: 0.5rem;
 }
+/* ---------------------Welcome Canvas---------------*/
+.welcome-canvas {
+  position: fixed;      /* or absolute */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;          /* Behind other content */
+}

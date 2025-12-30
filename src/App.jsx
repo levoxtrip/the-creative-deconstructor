@@ -11,6 +11,7 @@ import ArticleContent from './components/ArticleContent'
 import CategoryPage from './components/CategoryPage'
 import { loadArticle } from './utils/articleLoader'
 import { useSearch } from './hooks/useSearch'
+import WelcomeCanvas from './components/WelcomeCanvas'
 
 function App() {
   const [articles, setArticles] = useState([])
@@ -63,7 +64,7 @@ function App() {
   return (
     <>
       <Headline />
-      
+      <WelcomeCanvas/>
       <Tabbar
         currentSection={currentSection}
         onSectionChange={setCurrentSection}
@@ -103,9 +104,11 @@ function App() {
               articles={categoryArticles}
               onSelect={handleArticleSelect}
             />
-          ) : (
+          ) :  currentSection !== 'home' ? (
+
             <ArticleContent content={selectedArticle?.content} />
-          )
+             ) : null
+          
         }
       />
       

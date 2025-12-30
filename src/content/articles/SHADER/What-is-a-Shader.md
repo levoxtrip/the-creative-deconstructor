@@ -54,11 +54,7 @@ void main(){
 	gl_FragColor = vec4(1.0,0.0,0.0,1.0);
 }
 ```
-```glsl
-void main() {
-  gl_FragColor = vec4(1.0, 0.5, 0.8, 1.0);
-}
-```
+
 So you don't say " set pixel 100,100 to blue" - you have to say "if my position is 100,100 THEN I should be blue".
 
 
