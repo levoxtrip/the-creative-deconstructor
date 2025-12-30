@@ -1,119 +1,149 @@
-import {useEffect, useRef} from 'react'
+import { useEffect, useRef, memo } from 'react'
 import * as THREE from 'three'
 
-function GLSLShader({code}){
-	const containerRef = useRef(null)
-	const sceneRef = useRef(null)
-	const rendererRef = useRef(null)
-	const startTimeRef = useRef(Date.now())
+function GLSLShader({ code }) {
+  const containerRef = useRef(null)
+  const rendererRef = useRef(null)
+  const materialRef = useRef(null)
+  const frameRef = useRef(null)
+  const sceneRef = useRef(null)
+  const cameraRef = useRef(null)
+  const startTimeRef = useRef(Date.now())
+  const initializedRef = useRef(false)
 
-	useEffect(()=>{
+  // Initialize Three.js scene ONCE
+  useEffect(() => {
+    if (!containerRef.current || initializedRef.current) return
+    initializedRef.current = true
 
-	 while (containerRef.current?.firstChild) {
-    containerRef.current.removeChild(containerRef.current.firstChild)
-  }
+    const container = containerRef.current
+    const width = 400
+    const height = 400
 
-	//Set Canvas size
-	const width = 400
-	const height = 400
+    // Scene & Camera
+    const scene = new THREE.Scene()
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+    sceneRef.current = scene
+    cameraRef.current = camera
 
-	//Create Scene
-	const scene = new THREE.Scene()
-	const camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1)
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true })
+    renderer.setSize(width, height)
+    container.appendChild(renderer.domElement)
+    rendererRef.current = renderer
 
-	//Create Renderer
-	const renderer = new THREE.WebGLRenderer({antialias:true})
-	renderer.setSize(width,height)
-	containerRef.current.appendChild(renderer.domElement)
+    // Initial shader
+    const vertexShader = `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position, 1.0);
+      }
+    `
 
-	//Default Vertex Shader
+    const fragmentShader = `
+      precision mediump float;
+      uniform float u_time;
+      uniform vec2 u_resolution;
+      uniform vec2 u_mouse;
+      varying vec2 vUv;
+      void main() {
+        vec2 uv = vUv;
+        gl_FragColor = vec4(uv, 0.0, 1.0);
+      }
+    `
 
-const vertexShader = `
-  varying vec2 v_uv;  // Output - different name!
-  void main(){
-    v_uv = uv;  // uv comes from Three.js geometry
-    gl_Position = vec4(position, 1.0);
-  }
-`
+    const material = new THREE.ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      uniforms: {
+        u_time: { value: 0 },
+        u_resolution: { value: new THREE.Vector2(width, height) },
+        u_mouse: { value: new THREE.Vector2(0, 0) }
+      }
+    })
+    materialRef.current = material
 
-const fragmentShader = `
-  uniform float u_time;
-  uniform vec2 u_resolution;
-  uniform vec2 u_mouse;
-  varying vec2 v_uv;  // Must match vertex shader
+    const geometry = new THREE.PlaneGeometry(2, 2)
+    const mesh = new THREE.Mesh(geometry, material)
+    scene.add(mesh)
 
-  #define uv v_uv  // Let users write 'uv' in their code
+    // Mouse tracking
+    const handleMouseMove = (e) => {
+      const rect = renderer.domElement.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = height - (e.clientY - rect.top)
+      material.uniforms.u_mouse.value.set(x, y)
+    }
+    renderer.domElement.addEventListener('mousemove', handleMouseMove)
 
-  ${code}
-`
-	
-	const material = new THREE.ShaderMaterial({
-		vertexShader,
-		fragmentShader,
-		uniforms: {
-			u_time: {value:0},
-			u_resolution: {value: new THREE.Vector2(width,height)},
-			u_mouse: {value: new THREE.Vector2(0,0)}
-		}
-	})
+    // Animation loop
+    const animate = () => {
+      if (!rendererRef.current) return
+      const elapsed = (Date.now() - startTimeRef.current) / 1000
+      if (materialRef.current) {
+        materialRef.current.uniforms.u_time.value = elapsed
+      }
+      renderer.render(scene, camera)
+      frameRef.current = requestAnimationFrame(animate)
+    }
+    animate()
 
-	// Create Plane geometry
+    // Cleanup on unmount only
+    return () => {
+      cancelAnimationFrame(frameRef.current)
+      renderer.domElement.removeEventListener('mousemove', handleMouseMove)
+      geometry.dispose()
+      material.dispose()
+      renderer.dispose()
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement)
+      }
+      initializedRef.current = false
+      rendererRef.current = null
+    }
+  }, [])
 
-	const geometry = new THREE.PlaneGeometry(2,2)
-	const mesh = new THREE.Mesh(geometry,material)
-	scene.add(mesh)
+  // Update shader code separately
+  useEffect(() => {
+    if (!materialRef.current) return
 
-	
-	//mouse tracking
-	const handleMousemove = (e) => {
-		const rect = renderer.domElement.getBoundingClientRect()
-		const x = e.clientX - rect.left
-		const y = height - (e.clientY - rect.top) // flip Y
-		material.uniforms.u_mouse.value.set(x,y)
-	}
+    // Extract main body from user code
+    const mainMatch = code.match(/void\s+main\s*\(\s*\)\s*\{([\s\S]*)\}\s*$/)
+    const userMainBody = mainMatch ? mainMatch[1] : `gl_FragColor = vec4(vUv, 0.0, 1.0);`
 
-	renderer.domElement.addEventListener('mousemove',handleMousemove)
+    const newFragmentShader = `
+      precision mediump float;
+      uniform float u_time;
+      uniform vec2 u_resolution;
+      uniform vec2 u_mouse;
+      varying vec2 vUv;
+      
+      void main() {
+        vec2 uv = vUv;
+        ${userMainBody}
+      }
+    `
 
-	//animation loop
-
-	const animate = () => {
-		const elapsed = (Date.now()-startTimeRef.current) /1000
-		material.uniforms.u_time.value = elapsed
-		renderer.render(scene,camera)
-		requestAnimationFrame(animate)
-	}
-	animate()
-
-	//Store refs
-	sceneRef.current = scene
-	rendererRef.current = renderer
-
-	//cleanup
-	return () => {
-		renderer.domElement.removeEventListener("mousemove",handleMousemove)
-		containerRef.current?.removeChild(renderer.domElement)
-		geometry.dispose()
-		material.dispose()
-		renderer.dispose()
-	}
-
-	
-	
-	},[code])
+    materialRef.current.fragmentShader = newFragmentShader
+    materialRef.current.needsUpdate = true
+  }, [code])
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       style={{
         display: 'flex',
         justifyContent: 'center',
         margin: '20px 0',
         padding: '20px',
-        background: '#f9f9f9',
-        borderRadius: '8px'
+        background: '#1a1a1a',
+        borderRadius: '8px',
+        minHeight: '440px'
       }}
     />
   )
 }
 
-export default GLSLShader
+// Export with memo separately
+export default memo(GLSLShader)

@@ -1,3 +1,7 @@
+---
+title:modular
+---
+
 https://de.wikipedia.org/wiki/Klangsynthese
 https://de.wikipedia.org/wiki/Synthesizer
 https://de.wikipedia.org/wiki/Modularer_Synthesizer
@@ -5,7 +9,9 @@ https://de.wikipedia.org/wiki/Modularer_Synthesizer
 # Basics Modular Synthesis
 Creating sound waves electronically or digitally is called *Synthesis*.
 
-In comparison to pre-made synthesizer, *modular synthesis* allows us to choose which modules we want to use and in which order we want to connect them.
+A pre-made synthesizer has predefined amount of generators, filters and modulators which are combined in a fixed order.
+
+In comparison to pre-made synthesizer, *modular synthesis* allows us to choose which components/modules we want to use and in which order we want to connect them.
 
 Synthesizer -> fixed structure, fixed signal path
 Modular Synthesis -> modular structure, flexible signal path

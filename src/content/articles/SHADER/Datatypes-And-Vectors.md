@@ -6,7 +6,8 @@ Position: (x,y) or (x,y,z)
 Color: (red,green,blue) or (red,green,blue,alpha)
 Directions:(x,y,z)
 
-Shaders use vector types to bundle these together.
+
+In shaders we use vector types to bundle single numbers together.
 
 ## Core Types
 `float` - brightness,distance,time
@@ -72,7 +73,4 @@ vec2 flippedUV = uv.yx;
 ```
 Just be aware that you cannot mix naming conventions like `v.rx`
 
-## Vector Math
-
-https://lindenreidblog.com/2018/08/25/basic-math-for-shaders/
-https://www.youtube.com/watch?v=fNk_zzaMoSs&list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&index=1
+Next section is [Vector Math](VectorMath.md)
