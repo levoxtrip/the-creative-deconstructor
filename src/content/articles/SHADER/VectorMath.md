@@ -57,11 +57,68 @@ void main(){
 ## Scalar Multiplication
 Multiplying a vector by a scalar *scales its length*.
 
+```
+vec2 A = vec2(0.3,0.4);
+vec2 B = v*2.0;//doubled
+vec2 C = v*0.5;//halved
+vec2 D = v * -1.0;// flipped
+```
+![Vector Scalar Multiplication](/img/Math/VectorScalarMulti.png)
+
+The direction stays the same - unless it is negative.
+
+### Use case - Controlling movement speed
+```glsl
+void main(){
+	vec2 direction = vec2(0.1,0.0);
+	float speed = 0.3;
+	vec2 velocity = direction * speed + u_time;
+	gl_FragColor = vec4(fract(uv.x+velocity.x),fract(uv.y+velocity.y),0.0,0.0);
+}
+```
+
+## Length(Magnitude)
+GLSL has the build in `length()` functions to determine how long a vector is.
+```
+vec2 v = vec2(0.2,0.8);
+float len_v = length(v);
+
+//Math behind the length() function is Pythagorean theorem - sqrt(x*x + y*y)  
+// and for vector3 sqrt(x*x+y*y+z*z)
+```
+![Vector Scalar Multiplication](/img/Math/VectorMagnitude.png)
+
+### Use case - Distance from center
+```glsl
+void main(){
+	vec2 center = vec2(0.5);
+	float dist = length(uv-center);
+	gl_FragColor = vec4(vec3(dist),1.0);
+	
+}
+```
+
+## Normalization
+`normalize(v)` returns a vector that points in the same direction but with length 1. This vector is called *unit vector*. The unit vector is important because it represents pure direciton without magnitude information. Useful when you want to seperate "which direction" with "how far/fast".
+```
+vec2 A = vec2(0.3,0.2);
+vec2 N = normalize(v)
+// Math behind normalize is divide each component by the length v/length(v)
+```
+![Vector Scalar Multiplication](/img/Math/VectorNormalized.png)
+
+### Use case - move a fixed distance in a direction
+```glsl
+void main(){
+
+}
+```
 
 
 
 
----
+
+
 
 https://lindenreidblog.com/2018/08/25/basic-math-for-shaders/
 https://www.youtube.com/watch?v=fNk_zzaMoSs&list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&index=1
