@@ -11,7 +11,7 @@ Creating sound waves electronically or digitally is called *Synthesis*.
 
 A pre-made synthesizer has predefined amount of generators, filters and modulators which are combined in a fixed order.
 
-In comparison to pre-made synthesizer, *modular synthesis* allows us to choose which components/modules we want to use and in which order we want to connect them.
+In comparison *modular synthesis* allows us to choose and change which components/modules we want to use and in which order we want to connect them.
 
 Synthesizer -> fixed structure, fixed signal path
 Modular Synthesis -> modular structure, flexible signal path
@@ -24,7 +24,8 @@ Depending on their functionality modules have *input* and *output* which allows 
 The order in which the modules are connected matter and has an influence on how the sound is gonna be at the end.
 *Different order of modules creates different result.*
 
-The signal to communicate between the modules is *voltage*. Voltage is the *force* that pushes electrical charges(eletrons) through a circuit. The VCVRack/Eurorack modules work in a maximum value span of 10 Volt. 
+The signal to communicate between the modules is *voltage*. Voltage is the *force* that pushes electrical charges(eletrons) through a circuit.
+ The VCVRack/Eurorack modules work in a maximum value span of 10 Volt. 
 Example voltage spans are : 
 -5V to 5V
 0 to 10V
