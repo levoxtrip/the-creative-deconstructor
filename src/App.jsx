@@ -64,7 +64,7 @@ function App() {
   return (
     <>
       <Headline />
-      <WelcomeCanvas/>
+      <WelcomeCanvas isHomeActive={currentSection==='home'}/>
       <Tabbar
         currentSection={currentSection}
         onSectionChange={setCurrentSection}

@@ -40,10 +40,10 @@ body {
 
 .section-tab{
   background: none;
-  border-radius: 8px;
+  
   padding:20px;
   margin: 30px;
-  color: white;
+  color: #2a2a2a;
    box-sizing: border-box; /* ADDED: Includes padding in width calculation */
    font-size: 22px;
 }
@@ -245,4 +245,10 @@ body {
   width: 100vw;
   height: 100vh;
   z-index: -1;          /* Behind other content */
+  transition:filter 0.5s ease;
+}
+
+.welcome-canvas.blurred {
+  filter:blur(8px);
+  pointer-events:none
 }

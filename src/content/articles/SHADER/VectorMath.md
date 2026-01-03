@@ -2,8 +2,8 @@
 
 ## What is a vector?
 A *vector* is a list of numbers that respresent two things simultaneously:
-- a *point* - location in space
-- an arrow - a direction and distance from the origin.
+- a *point* - location in 2D/3D space
+- an *arrow* - a direction and distance from the origin.
 
 ```
 vec2 a = vec2(0.4,0.5);
@@ -12,7 +12,9 @@ vec2 a = vec2(0.4,0.5);
 ```
 
 ## Addition
-Vector addition is the operation of adding multiple vectors together into a vector sum. For two vectors A and B, the sum AB is obtained by placing them head to tail and drawing the vector from the free tail to the free head.
+Vector addition is the operation of adding multiple vectors together into a vector sum. Mathematically we add value of each
+
+For two vectors A and B, the sum AB is obtained by placing them head to tail and drawing the vector from the free tail to the free head.
 
 ![Vector Addition](/img/Math/VectorAddition.png)
 
@@ -99,7 +101,7 @@ void main(){
 ```
 
 ## Normalization
-`normalize(v)` returns a vector that points in the same direction but with length 1. This vector is called *unit vector*. The unit vector is important because it represents pure direciton without magnitude information. Useful when you want to seperate "which direction" with "how far/fast".
+`normalize(v)` returns a vector that points in the same direction but with length 1. This vector is called *unit vector*. The unit vector is important because it represents pure direction without magnitude information. Useful when you want to seperate "which direction" with "how far/fast".
 ```
 vec2 A = vec2(0.3,0.2);
 vec2 N = normalize(v)
@@ -110,13 +112,70 @@ vec2 N = normalize(v)
 ### Use case - move a fixed distance in a direction
 ```glsl
 void main(){
+	float myTime = floor(mod(u_time,3.0)); 
+	vec2 target = vec2(1.0);
+	vec2 current = uv;
+	vec2 toTarget = target -current;
+	vec2 direction = normalize(toTarget);
+	float stepSize = 0.2*myTime;
+	if(length(toTarget)>0.0){
+	
+	current = current + direction *stepSize;
+	} else {
+		current = uv;
+	}
+	
+	gl_FragColor = vec4(vec3(current.x,current.y,0.0),1.0);
+}
+```
+## Dot Product
+For unit vectors the dot product is the cosing of the angle between the vectors.
+The dot product returns a signle number.
 
+If the dot product:
+- is 1.0 -> both vectors have the same direction
+- is 0.0 -> both vectors are Perpendicular(90°)
+- is -1.0 -> both vectors are Opposite direction(180°)
+- is between 0.0 to 1.0 -> both vectors are less than 90° apart
+- is between -1.0 to 1.0 -> both vectors more than 90° apart
+
+```
+vec2 A = vec2(0.2,0.3);
+vec2 B = vec2(0.4,0.1);
+float dot = dot(A,B);
+// The sum of component-wise products
+// 0.2*0.4 + 0.3 *0.1
+```
+### Use case - 
+
+## Projection
+The dot product also gives you how much one vector points in the direction of another.
+
+
+
+
+## Component-Wise Multiplication
+When you multiply two vectors you get component-wise multiplication.
+```
+vec3 a = vec3(0.1,0.2,0.3);
+vec3 b = vec3(1.0,0.0,1.0);
+vec3 c = a * b;
+//vec3(0.1,0.0,0.3)
+```
+
+### Use case - Masking or tinting
+```glsl
+void main(){
+	vec3 mask = vec3(1.0,0.0,1.0);
+	vec3 tint = vec3(1.0,0.5,0.5);
+	vec3 color = vec3(uv.x,uv.y,0.0);
+	vec3 final = color*tint;
+	gl_FragColor = vec4(final,1.0);
 }
 ```
 
-
-
-
+## Matrices
+Matrices are tables of numbers with distinct rows and columns. They are used to represent coordinate spaces with origin and orientation of a space in which all positions in that space are place relative to. Two applications are for example object space(origin at the center of the object) and world space(origin at the center of the world).
 
 
 

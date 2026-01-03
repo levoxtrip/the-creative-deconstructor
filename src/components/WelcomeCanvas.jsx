@@ -2,9 +2,14 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { useEffect, useRef } from "react";
 
-const WelcomeCanvas = () => {
+const WelcomeCanvas = ({isHomeActive}) => {
+  //we use the refs because we need to access them outside of useEffect
   const canvasRef = useRef(null)
   const sceneRef = useRef(null)
+  const rendererRef = useRef(null)
+  const cameraRef = useRef(null)
+  const controlsRef = useRef(null)
+  const frameRef = useRef(null)
   const mouseRef = useRef(new THREE.Vector2())
   const raycasterRef = useRef(new THREE.Raycaster())
 
@@ -40,7 +45,7 @@ const WelcomeCanvas = () => {
     );
     camera.position.z = 5;  // Move camera back so we can see the box
 	const ranRotation = (Math.random() - 0.5)*180
-	console.log(ranRotation)
+	cameraRef.current = camera
 	
     scene.add(camera);
 
@@ -50,6 +55,7 @@ const WelcomeCanvas = () => {
       antialias: true,
     })
     renderer.setSize(sizes.width, sizes.height)
+    rendererRef.current = renderer
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
@@ -59,7 +65,7 @@ const WelcomeCanvas = () => {
     const orbControl = new OrbitControls(camera, renderer.domElement);
     orbControl.enableDamping = true;
 	orbControl.enableZoom = false;
-
+  controlsRef.current = orbControl
 	orbControl.minDistance = 0.1
 	orbControl.maxDistance = 0.1
 
@@ -193,13 +199,6 @@ const WelcomeCanvas = () => {
     // const boxMesh = new THREE.Mesh(environmentBox, environmentMaterial);
     // scene.add(boxMesh);
 
-    // Animation loop
-    const animate = () => {
-      requestAnimationFrame(animate);
-      orbControl.update();  // Required for damping
-      renderer.render(scene, camera);
-    }
-    animate();
 
     // Handle resize
     const handleResize = () => {
@@ -220,8 +219,46 @@ const WelcomeCanvas = () => {
     }
   }, [])
 
+  useEffect(()=>{
+  const renderer = rendererRef.current
+  const camera = cameraRef.current
+  const controls = controlsRef.current
+  const scene = sceneRef.current
+
+  if(!renderer || !camera || !controls || !scene) return
+
+  if(isHomeActive){
+    
+    // Animation loop
+    const animate = () => {
+    frameRef.current = requestAnimationFrame(animate);
+      controls.update();  // Required for damping
+      renderer.render(scene, camera);
+    }
+    if(isHomeActive){
+    animate();
+    }
+
+    controls.enabled = true
+  } else {
+    if(frameRef.current){
+      cancelAnimationFrame(frameRef.current)
+      frameRef.current = null
+    }
+
+    controls.enabled = false
+  }
+  
+  return () => {
+    if(frameRef.current){
+      cancelAnimationFrame(frameRef.current)
+    }
+  }
+  
+  },[isHomeActive])
+
   return (
-    <div className="welcome-canvas">
+    <div className={`welcome-canvas ${isHomeActive ? '' : 'blurred'}`}>
       <canvas ref={canvasRef} id="WelcomeCanvas"></canvas>
     </div>
   )
