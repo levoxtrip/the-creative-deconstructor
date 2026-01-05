@@ -1,5 +1,13 @@
 # Vector math
 
+In 2D space we have the horizontal x axis and the vertical y axis. Where they intersect is called *origin*, which we can think of as the center of the space and the root of all vectors.
+
+The coordinates of a vector is a collections of numbers that give instructions on how to get from the tail of the vector(it's origin) to the tip of the vector. The first number defines how far to move on the x axis (negative number to the left; positive number to the right). The second number defines how far to move on the y axis(negative numbers to downward motion;positive numbers upward motion).
+
+We write vectors in brackets `[-2,3]` and points in round brackets `(2,3)`
+
+In 3D space we have a third axis z which is perpendicular to the other axis. The vector then is a triplet `[x,y,z]`. This gives you one unique vector in space.
+
 ## What is a vector?
 A *vector* is a list of numbers that respresent two things simultaneously:
 - a *point* - location in 2D/3D space
@@ -12,9 +20,9 @@ vec2 a = vec2(0.4,0.5);
 ```
 
 ## Addition
-Vector addition is the operation of adding multiple vectors together into a vector sum. Mathematically we add value of each
+Vector addition is the operation of adding multiple vectors together into a vector sum. Mathematically we add the corresponding components of each vector.
 
-For two vectors A and B, the sum AB is obtained by placing them head to tail and drawing the vector from the free tail to the free head.
+For two vectors A and B, the sum AB is obtained by placing them head to tail and drawing the vector from the free tail to the free head. So adding the vectors means applying the displacement of the added vectors from the position.
 
 ![Vector Addition](/img/Math/VectorAddition.png)
 
@@ -22,7 +30,12 @@ For two vectors A and B, the sum AB is obtained by placing them head to tail and
 vec2 A = vec2(0.4,0.2);
 vec2 B = vec2(0.2,0.5);
 vec2 C = A+B
+// C.x = A.x + B.x = 0.4 + 0.2
+// C.y = A.y + B.y = 0.2 + 0.5
+// C = (0.6,0.7)
 ```
+
+Each vector represents a certain movement, a step with a certain distance and direction in space. If you take a step along the first vector and then take another step along the second vector you moved the same distance as if you would have moved along the sum of these two vectors.
 
 ### Use case - Offsetting Position
 We can use *Addition* to move the whole coordinate system
@@ -57,8 +70,9 @@ void main(){
 ```
 
 ## Scalar Multiplication
-Multiplying a vector by a scalar *scales its length*.
-
+Multiplying a vector by a *scalar* *stretches out the vector /scales its length*.
+Mathematically we multiply each of the component of the vector with the scalar.
+`[x,y]*3 = [3x,3y]`
 ```
 vec2 A = vec2(0.3,0.4);
 vec2 B = v*2.0;//doubled
@@ -80,13 +94,12 @@ void main(){
 ```
 
 ## Length(Magnitude)
+The magnitude of a vector is calculated as the square root of the sum of each component squared. The math behind it is *Pythagorean theorem* `sqrt(x*x + y*y)` or for vector 3 `sqrt(x*x+y*y+z*z)`
+
 GLSL has the build in `length()` functions to determine how long a vector is.
 ```
 vec2 v = vec2(0.2,0.8);
 float len_v = length(v);
-
-//Math behind the length() function is Pythagorean theorem - sqrt(x*x + y*y)  
-// and for vector3 sqrt(x*x+y*y+z*z)
 ```
 ![Vector Scalar Multiplication](/img/Math/VectorMagnitude.png)
 
@@ -101,11 +114,10 @@ void main(){
 ```
 
 ## Normalization
-`normalize(v)` returns a vector that points in the same direction but with length 1. This vector is called *unit vector*. The unit vector is important because it represents pure direction without magnitude information. Useful when you want to seperate "which direction" with "how far/fast".
+`normalize(v)` returns a vector that points in the same direction but with length 1. This vector is called *unit vector*. The unit vector is important because it represents pure direction without magnitude information. Useful when you want to seperate "which direction" with "how far/fast". Math behind normalize is, you divide each component by the magnitude `v = (v.x/length(v),v.y/length(v),v.z/length(v))`
 ```
 vec2 A = vec2(0.3,0.2);
 vec2 N = normalize(v)
-// Math behind normalize is divide each component by the length v/length(v)
 ```
 ![Vector Scalar Multiplication](/img/Math/VectorNormalized.png)
 
@@ -129,15 +141,18 @@ void main(){
 }
 ```
 ## Dot Product
-For unit vectors the dot product is the cosing of the angle between the vectors.
-The dot product returns a signle number.
+For unit vectors the dot product is the cosine of the angle between the vectors`cos(theta)`.
+The dot product between two normalized vectors is always a scalar/single number between -1 to 1.
 
+It gives us information about the angle between the two normalized vectors.
 If the dot product:
 - is 1.0 -> both vectors have the same direction
 - is 0.0 -> both vectors are Perpendicular(90°)
 - is -1.0 -> both vectors are Opposite direction(180°)
 - is between 0.0 to 1.0 -> both vectors are less than 90° apart
 - is between -1.0 to 1.0 -> both vectors more than 90° apart
+
+![Vector DotProduct Img](/img/Math/VectorDotProduct.png)
 
 ```
 vec2 A = vec2(0.2,0.3);
@@ -146,6 +161,13 @@ float dot = dot(A,B);
 // The sum of component-wise products
 // 0.2*0.4 + 0.3 *0.1
 ```
+The dot product is super useful for example for light calculations:
+It allows to determine how much a surface of a shape is facing a light source and calculate the light/brightness of the surface.
+*facing directly toward light -> high dot prodcut -> bright*
+*facing away from light -> low/negative dot product -> dark*
+
+Another application is to use the dot product to check if an objeczt is in front or behind another object(positive dot product -> in front; negative -> behind)
+
 ### Use case - 
 
 ## Projection
@@ -174,10 +196,13 @@ void main(){
 }
 ```
 
+## Cross-product
+
+
 ## Matrices
 Matrices are tables of numbers with distinct rows and columns. They are used to represent coordinate spaces with origin and orientation of a space in which all positions in that space are place relative to. Two applications are for example object space(origin at the center of the object) and world space(origin at the center of the world).
 
 
+https://www.youtube.com/watch?v=fNk_zzaMoSs&list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&index=2
 
-https://lindenreidblog.com/2018/08/25/basic-math-for-shaders/
-https://www.youtube.com/watch?v=fNk_zzaMoSs&list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&index=1
+## Deeper concepts

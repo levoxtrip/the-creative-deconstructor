@@ -84,12 +84,12 @@ The *cutoff* defines how much of the input sound is gonna let through -> the fre
 
 *Res* controls the resonance of the filter at the cutoff point - It feeds back a filtered slice around the cutoff back into itself. At high resonance the filter becomes an oscillator and produces a sine wave at the cutoff frequency. A more generalized description is it introduces different timbre.
 
-*Drive* adds some gain to the input signal which saturates it. The more drive the sharper the edge of the sound signal and the more aggressive/grungy.
+*Drive* adds some gain/amplification to the input signal which saturates it. The more drive the sharper the edge of the sound signal and the more aggressive/grungy.
 
 ### Animate Sound
 When we have the sound shaped we want to animate it over time or make it reactive to other values or even interact with it ourself via keyboard, slider etc.
 
-In modular synthesis a process called *modulation* is used, where a signal(modulator) affects another signal(the carrier) or parameters of a module over time. 
+In modular synthesis we use a process called *modulation*, where a signal(modulator) affects another signal(the carrier) or parameters of a module over time. 
 
 #### Control Voltage(CV)
 To apply the modulation we use a *control voltage(CV)*. *Control Voltage* is one of the fundamentals of modular synthesis. It allows the communication between modules to control and manipulate parameters like *pitch, frequency, filter cutoff, amplitude* and more.
@@ -112,11 +112,11 @@ In analog modular hardware the voltage range differs between audio(AC coupled) a
 ##### Low Frequency Oscillator(LFO)
 A `LFO` generates a low frequency waveform lower than 20 Hz that is typically used to modulate other modules. Similar to `VCO`, we can use sine, triangle, sawtooth and square waveforms.  
 
-The `Freq` controls the pitch of the oscillator.
+The `Freq` controls the how many time it oscillators per time unit.
 
 `OFST` toogles between uni- and bipolar signal.
 
-The `Pulse Width` allows to control the high portion of the square wave.
+The `Pulse Width` allows to control the width of the HIGH state of the square wave.
 
 
 ##### Trigger and Gates

@@ -12,6 +12,10 @@ import CategoryPage from './components/CategoryPage'
 import { loadArticle } from './utils/articleLoader'
 import { useSearch } from './hooks/useSearch'
 import WelcomeCanvas from './components/WelcomeCanvas'
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/ibm-plex-sans-condensed/600.css'
+import '@fontsource/ibm-plex-sans-condensed/700.css'
 
 function App() {
   const [articles, setArticles] = useState([])
