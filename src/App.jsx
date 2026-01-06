@@ -102,12 +102,13 @@ function App() {
 
       <Layout
         sidebar={
-          currentSection !== 'home' ? (
-            <Sidebar
-              categories={uniqueCategories}
-              onCategorySelect={setSelectedCategory}
-            />
-          ) : null
+    currentSection !== 'home' ? (
+      <Sidebar
+        articles={articles}
+        currentSection={currentSection}
+        onArticleSelect={handleArticleSelect}
+      />
+    ) : null
         }
         content={
         //Download page takes priority
