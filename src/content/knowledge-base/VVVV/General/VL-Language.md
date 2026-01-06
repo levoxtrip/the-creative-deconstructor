@@ -44,3 +44,28 @@ To get the value of a property of a Class you can create a `GetValue` method and
 ![State Output Img](/img/VVVV/GetSetValuesClass.png)
 
 ## Interfaces
+
+## Delegates
+https://thegraybook.vvvv.org/reference/language/delegates.html
+
+A *delegate* is a *packaged behavior* that lets you treat a function like a variable that you can pass around and trigger whenever you want.
+We can think of *Delegate* as a *recipe stored on piece of paper*. 
+
+A *delegate* is defined by it's inputs and outputs. The combination of the *inputs* and *outputs* is the *signature* of the delegate. It doesn't matter what the delegate is *named*  - it only matters that the types of the input and output match - similar to a lego shape.
+
+*Delegates* only execute when they get *invoked(go signal)*. You use an `Invoke` node, plug in your data and the delgate runs its logic.
+
+*Delegates* are treated like objects, which allows you to swap them dynamically and execute them when needed.
+
+We can define a *delegate* with a `Delegate(Region)`. To have it execute something we have to add *inputs* and *outputs* and define their types.
+
+To execute the *delegate* we have to invoke it.
+
+![Invoke Delegate Img](/img/VVVV/InvokeDelegate.png).
+
+We also can pass *delegate* into a `Process` node. You provide a function to the process and it can call this functionality internally whenever it wants.
+
+![Invoke Delegate Img](/img/VVVV/PassedDelegateToProcess.png).
+
+## Observables
+Observables are about pushing data out- like an event, task
