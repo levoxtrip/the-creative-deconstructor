@@ -203,6 +203,28 @@ void main(){
 Matrices are tables of numbers with distinct rows and columns. They are used to represent coordinate spaces with origin and orientation of a space in which all positions in that space are place relative to. Two applications are for example object space(origin at the center of the object) and world space(origin at the center of the world).
 
 
-https://www.youtube.com/watch?v=fNk_zzaMoSs&list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab&index=2
+https://youtu.be/k7RM-ot2NWY?si=FGPTrwEdwiRxg7wp&t=359
 
 ## Deeper concepts
+When you have a pair of numbers that is meant to describe a vector like `[2,3]` you can think of each coordinate as a *scalar*. Each one stretches or squishes vectors.
+In the 2D space we have two special vectors `î`(Unit vector in x direction with length 1) and `ĵ`(unit vector in y direction with length 1). They are called the *basis vectors* of xy coordinate system.
+So we can think of the x coordinate of our vector as the scalar of the `î` and the y coordinate as the scalar for the `ĵ` vector. So the vector that these two coordinates describe is the sum of two scaled vectors `(2)î + (3)ĵ`
+
+![Basis Vectors Img](/img/Math/BasisVectors.png)
+
+With the combination of scalar and basis vectors we can reach every possible 2D vector in the 2D plane for most pairs of the vector. When we take two vectors and scale them like this it is called "linear combination" of these two vectors.
+
+![Vector Combinations Img](/img/Math/VectorCombinations.png)
+
+If two orignal vectors line up, the tip of the resulting vector is limited to the common direction of the two vectors.
+
+*span* is the set of all possible vectors that you can reach with a linear combination of a pair of vectors.
+
+The *span* of two vectors is way of asking: "What are all possible vectors that you can reach using only vector addition and scalar multiplication."
+
+### Vectors vs Points
+We can think of all the possible vectors in the 2D space also as a point at the position of the tip of the vector.
+
+![Points From Vector Img](/img/Math/PointsFromVector.png)
+
+When you think of a single vector you can think of it as an arrow and when you have a set of vectors you can think of them as points in the space.

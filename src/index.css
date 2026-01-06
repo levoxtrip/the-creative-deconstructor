@@ -393,7 +393,10 @@ code {
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'Fira Code', 'Consolas', monospace;
-  font-size: 1.9em;
+  font-size: 0.85em;
+  /* Keep it inline! */
+  display: inline;
+  width: auto;
 }
 
 /* Code blocks - triple backticks ``` */
@@ -403,6 +406,7 @@ pre {
   padding: 20px;
   overflow-x: auto;
   border: 1px solid #333;
+  width: 100%;
 }
 
 /* Code inside pre (reset inline styles) */
@@ -411,8 +415,10 @@ pre code {
   color: #abb2bf;
   padding: 0;
   border-radius: 0;
-  font-size: 1em;
+  font-size: 1.2em;
   line-height: 1.6;
+  display: block;  /* Block inside pre */
+  width: 100%;
 }
 
 /*--------------------LIght box -------------*/

@@ -109,53 +109,42 @@ function MarkdownRenderer({ content,articles,onArticleSelect,onDownloadClick }) 
           return <ClickableImage src={resolvedSrc} alt={alt} {...props}/>
           
         },
-        code: ({ node, inline, className, children, ...props }) => {
+code: ({ node, inline, className, children, ...props }) => {
   const match = /language-(\w+)/.exec(className || '')
   const language = match ? match[1] : ''
   const codeString = String(children).replace(/\n$/, '')
   
-  // P5js sketch
   if (!inline && language === 'p5js') {
     return <P5Sketch code={codeString} />
   }
 
-  // GLSL shader
   if (!inline && language === 'glsl') {
     return <GLSLShader code={codeString} />
   }
   
-  // Code block with syntax highlighting
-  if (!inline && language) {
+  // Inline code only - blocks are handled by `pre`
+  if (inline) {
     return (
-      <SyntaxHighlighter
-        style={oneDark}
-        language={language}
-        PreTag="div"
-        customStyle={{
-          borderRadius: '8px',
-          padding: '20px',
-          fontSize: '14px',
-        }}
-      >
-        {codeString}
-      </SyntaxHighlighter>
-    )
-  }
-
-  // Code block without language
-  if (!inline) {
-    return (
-      <pre className="code-block">
-        <code {...props}>{children}</code>
-      </pre>
+      <code className="inline-code" {...props}>
+        {children}
+      </code>
     )
   }
   
-  // Inline code
+  // Non-inline code (inside pre) - just return code element
   return (
-    <code className="inline-code" {...props}>
+    <code className={className} {...props}>
       {children}
     </code>
+  )
+},
+
+// Add pre handler
+pre: ({ children, ...props }) => {
+  return (
+    <pre className="code-block" {...props}>
+      {children}
+    </pre>
   )
 }
       }}
