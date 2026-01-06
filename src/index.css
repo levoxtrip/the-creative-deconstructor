@@ -187,7 +187,7 @@ p {
   color: #e0e0e0;
 }
 
-/* Search Results */
+/* ----------------------------------Search Results */
 .search-results {
   padding: 1rem;
 }
@@ -255,6 +255,209 @@ p {
   color: #888;
   margin-top: 0.5rem;
 }
+
+/* ---------------------Markdown---------------*/
+.markdown-img.clickable{
+  cursor:zoom-in;
+  transition: opacity 0.2s;
+}
+
+.markdown-img.clickable:hover{
+  opacity: 0.85;
+}
+
+.internal-link {
+  color: #4a9eff;
+  text-decoration: none;
+  border-bottom: 1px dashed #4a9eff;
+  cursor: pointer;
+}
+
+.internal-link:hover {
+  border-bottom-style: solid;
+}
+
+/* External links */
+.external-link {
+  color: #888;
+  text-decoration: none;
+}
+
+.external-link:hover {
+  text-decoration: underline;
+}
+
+.external-link::after {
+  content: ' ↗';
+  font-size: 0.8em;
+}
+
+/* Download link in markdown */
+.download-link {
+  color: #f59e0b;
+  text-decoration: none;
+  border-bottom: 1px dashed #f59e0b;
+  cursor: pointer;
+}
+
+.download-link:hover {
+  border-bottom-style: solid;
+}
+
+.download-link::before {
+  content: '↓ ';
+}
+
+/* Download Page */
+.download-page {
+  padding: 40px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.download-back {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 30px;
+  padding: 0;
+}
+
+.download-back:hover {
+  color: #fff;
+}
+
+.download-card {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+}
+
+.download-icon {
+  width: 80px;
+  height: 80px;
+  background: #3a3a3a;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #888;
+}
+
+.download-filename {
+  font-size: 18px;
+  margin: 0 0 10px 0;
+  word-break: break-all;
+}
+
+.download-info {
+  color: #888;
+  font-size: 14px;
+  margin: 0 0 30px 0;
+}
+
+.download-button {
+  background: #22c55e;
+  color: #000;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.download-button:hover {
+  background: #16a34a;
+}
+
+/* Future paywall styling */
+.download-paywall {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+
+code {
+  background: #2a2a2a;
+  color: #e06c75;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 1.9em;
+}
+
+/* Code blocks - triple backticks ``` */
+pre {
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 20px;
+  overflow-x: auto;
+  border: 1px solid #333;
+}
+
+/* Code inside pre (reset inline styles) */
+pre code {
+  background: none;
+  color: #abb2bf;
+  padding: 0;
+  border-radius: 0;
+  font-size: 1em;
+  line-height: 1.6;
+}
+
+/*--------------------LIght box -------------*/
+
+.lightbox-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom: 0;
+  background: rgba(0,0,0,0.9);
+  display:flex;
+  align-items:center;
+  justify-content: center;
+  z-index:1000;
+  cursor:zoom-out;
+}
+
+
+.lightbox-image {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  cursor: default;
+}
+
+/* Close button */
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 40px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.lightbox-close:hover {
+  opacity: 1;
+}
+
+
 /* ---------------------Welcome Canvas---------------*/
 .welcome-canvas {
   position: fixed;      /* or absolute */

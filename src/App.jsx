@@ -16,12 +16,15 @@ import '@fontsource/inter/400.css'
 import '@fontsource/inter/600.css'
 import '@fontsource/ibm-plex-sans-condensed/600.css'
 import '@fontsource/ibm-plex-sans-condensed/700.css'
+import DownloadPage from './components/DownloadPage'
 
 function App() {
   const [articles, setArticles] = useState([])
   const [selectedArticle, setSelectedArticle] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [currentSection, setCurrentSection] = useState('home')
+  const [downloadFile,setDownloadFile] = useState(null)
+  const [previousArticle,setPreviousArticle] = useState(null)
 
   useEffect(() => {
     loadArticle().then(data => {
@@ -65,6 +68,18 @@ function App() {
     search.setQuery('')  // Clear search when selecting article
   }
 
+  const handleDownloadClick = (filePath) => {
+    setPreviousArticle(selectedArticle)
+    setDownloadFile(filePath)
+  }
+
+  const handleDownloadBack = () => {
+    setSelectedArticle(previousArticle)
+    setDownloadFile(null)
+    setPreviousArticle(null)
+  }
+
+
   return (
     <>
       <Headline />
@@ -95,6 +110,13 @@ function App() {
           ) : null
         }
         content={
+        //Download page takes priority
+        downloadFile ? (
+        <DownloadPage
+        file={downloadFile}
+        onBack={handleDownloadBack}
+        />
+        ) :
           // If searching, show search results
           search.isSearching ? (
             <SearchResults
@@ -110,7 +132,13 @@ function App() {
             />
           ) :  currentSection !== 'home' ? (
 
-            <ArticleContent content={selectedArticle?.content} />
+            <ArticleContent
+            content={selectedArticle?.content}
+            articles={articles}
+            onArticleSelect={handleArticleSelect} 
+            onDownloadClick={handleDownloadClick}
+            
+            />
              ) : null
           
         }
