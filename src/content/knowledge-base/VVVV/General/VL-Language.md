@@ -68,4 +68,11 @@ We also can pass *delegate* into a `Process` node. You provide a function to the
 ![Invoke Delegate Img](/img/VVVV/PassedDelegateToProcess.png).
 
 ## Observables
+Events in VL get expressed as observables(Reactive)
 Observables are about pushing data out- like an event, task
+
+
+## Forwards
+`Forward` allows you to select which part of a C# library you want to use and expose.
+
+## Interfaces

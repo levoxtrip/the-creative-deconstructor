@@ -14,3 +14,5 @@ We also need a `LightShaftBoundingComponent` to set the volume in which we want 
 In the `SceneWindow` we have to right click, `Configure` and expose `Light Shaft` Input. There we can can connect a `LightShaft` node.
 
 ![LightShaftCode Img](/img/VVVV/LightShaftCode.png)
+
+[LightShaft Patch](/files/VVVV/LightShaft.vl)

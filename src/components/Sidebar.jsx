@@ -1,12 +1,12 @@
 import { useState } from 'react'
 
 function Sidebar({ articles, onArticleSelect, currentSection }) {
-  // Filter articles for current section (exclude index files)
+  const [expandedPath, setExpandedPath] = useState([])
+
   const sectionArticles = articles.filter(
     a => a.section === currentSection && a.title !== 'index'
   )
 
-  // Build tree structure from flat articles
   const buildTree = (articles) => {
     const tree = {}
 
@@ -14,7 +14,6 @@ function Sidebar({ articles, onArticleSelect, currentSection }) {
       const path = article.categoryPath
       let current = tree
 
-      // Build nested structure
       path.forEach((folder, index) => {
         if (!current[folder]) {
           current[folder] = {
@@ -23,7 +22,6 @@ function Sidebar({ articles, onArticleSelect, currentSection }) {
           }
         }
         
-        // If last level, add article here
         if (index === path.length - 1) {
           current[folder]._articles.push(article)
         }
@@ -37,82 +35,94 @@ function Sidebar({ articles, onArticleSelect, currentSection }) {
 
   const tree = buildTree(sectionArticles)
 
+  // Toggle folder - closes others at same level
+  const toggleFolder = (path) => {
+    const pathStr = path.join('/')
+    const currentStr = expandedPath.join('/')
+
+    if (currentStr.startsWith(pathStr)) {
+      // Clicking open folder or parent - close it
+      setExpandedPath(path.slice(0, -1))
+    } else {
+      // Open this folder (closes others)
+      setExpandedPath(path)
+    }
+  }
+
+  const isExpanded = (path) => {
+    const pathStr = path.join('/')
+    const currentStr = expandedPath.join('/')
+    return currentStr.startsWith(pathStr)
+  }
+
   return (
     <div className="sidebar">
       <TreeNode 
         tree={tree} 
         onArticleSelect={onArticleSelect}
+        path={[]}
+        toggleFolder={toggleFolder}
+        isExpanded={isExpanded}
       />
     </div>
   )
 }
 
-// Recursive tree node component
-function TreeNode({ tree, onArticleSelect, level = 0 }) {
-  const [expanded, setExpanded] = useState({})
-
-  const toggleFolder = (folder) => {
-    setExpanded(prev => ({
-      ...prev,
-      [folder]: !prev[folder]
-    }))
-  }
-
+function TreeNode({ tree, onArticleSelect, path, toggleFolder, isExpanded }) {
   const folders = Object.keys(tree)
 
   if (folders.length === 0) return null
 
   return (
-    <ul className="tree-list" style={{ paddingLeft: level > 0 ? 16 : 0 }}>
+    <ul className="tree-list">
       {folders.map(folder => {
         const node = tree[folder]
-        const isExpanded = expanded[folder]
+        const currentPath = [...path, folder]
+        const expanded = isExpanded(currentPath)
         const hasChildren = 
           Object.keys(node._subfolders).length > 0 || 
           node._articles.length > 0
 
         return (
           <li key={folder} className="tree-item">
-            {/* Folder header */}
             <div 
-              className={`tree-folder ${isExpanded ? 'expanded' : ''}`}
-              onClick={() => toggleFolder(folder)}
+              className={`tree-folder ${expanded ? 'expanded' : ''}`}
+              onClick={() => toggleFolder(currentPath)}
             >
-              <span className="tree-icon">
-                {hasChildren ? (isExpanded ? '▼' : '▶') : ''}
-              </span>
               <span className="tree-folder-name">{folder}</span>
+              {hasChildren && (
+                <span className="tree-arrow">{expanded ? '−' : '+'}</span>
+              )}
             </div>
 
-            {/* Children (subfolders + articles) */}
-            {isExpanded && (
+            {expanded && (
               <div className="tree-children">
-                {/* Subfolders */}
                 {Object.keys(node._subfolders).length > 0 && (
                   <TreeNode 
                     tree={node._subfolders}
                     onArticleSelect={onArticleSelect}
-                    level={level + 1}
+                    path={currentPath}
+                    toggleFolder={toggleFolder}
+                    isExpanded={isExpanded}
                   />
                 )}
 
-                {/* Articles in this folder */}
                 {node._articles.length > 0 && (
-  <ul className="tree-articles">
-    {node._articles.map(article => (
-      <li 
-        key={article.id}
-        className="tree-article"
-        onClick={(e) => {
-          e.stopPropagation()
-          onArticleSelect(article)
-        }}
-      >
-        {article.title}
-      </li>
-    ))}
-  </ul>
-)}
+                  <ul className="tree-articles">
+                    {node._articles.map(article => (
+                      <li 
+                        key={article.id}
+                        className="tree-article"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onArticleSelect(article)
+                        }}
+                      >
+                        {article.title}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
           </li>

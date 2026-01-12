@@ -1,2 +1,2 @@
 # Articles
-Welcome to my articles.
+In the Articles section I write about longer topics or

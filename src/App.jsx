@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Layout from './components/Layout'
 import Headline from './components/Headline'
 import Tabbar from './components/Tabbar'
@@ -33,17 +33,19 @@ function App() {
     })
   }, [])
 
-  useEffect(() => {
-    const indexArticle = articles.find(
-      article => article.section === currentSection && article.title === 'index'
-    )
- 
-    if (indexArticle) {
-      setSelectedArticle(indexArticle)
-      setSelectedCategory(null)
-    }
-    console.log(currentSection)
-  }, [currentSection])
+useEffect(() => {
+  // Only set index if no article is selected or section changed manually
+  if (selectedArticle?.section === currentSection) return
+  
+  const indexArticle = articles.find(
+    article => article.section === currentSection && article.title === 'index'
+  )
+
+  if (indexArticle) {
+    setSelectedArticle(indexArticle)
+    setSelectedCategory(null)
+  }
+}, [currentSection, articles])
 
 
 
@@ -62,11 +64,13 @@ function App() {
     sectionArticles.map(article => JSON.stringify(article.categoryPath))
   )].map(str => JSON.parse(str))
 
-  const handleArticleSelect = (article) => {
-    setSelectedArticle(article)
-    setSelectedCategory(null)
-    search.setQuery('')  // Clear search when selecting article
-  }
+const handleArticleSelect = useCallback((article) => {
+  console.log('Selecting article:', article.title)
+  setSelectedCategory(null)
+  setSelectedArticle(article)
+  setCurrentSection(article.section)
+  search.setQuery('')
+}, [search])
 
   const handleDownloadClick = (filePath) => {
     setPreviousArticle(selectedArticle)
@@ -83,7 +87,12 @@ function App() {
   return (
     <>
       <Headline />
-      <WelcomeCanvas isHomeActive={currentSection==='home'}/>
+<WelcomeCanvas 
+  isHomeActive={currentSection === 'home'} 
+  articles={articles}
+  onArticleSelect={handleArticleSelect}
+/>
+      {/* <WelcomeCanvas isHomeActive={currentSection==='home'}/> */}
       <Tabbar
         currentSection={currentSection}
         onSectionChange={setCurrentSection}

@@ -202,8 +202,40 @@ void main(){
 ## Matrices
 Matrices are tables of numbers with distinct rows and columns. They are used to represent coordinate spaces with origin and orientation of a space in which all positions in that space are place relative to. Two applications are for example object space(origin at the center of the object) and world space(origin at the center of the world).
 
+### Linear transformation
+*Transformation* is a mathematical word for function. It takes in inputs and spits out an out for each one.  In *Linear Algebra* we want to input a vector and return also a vector. The word *transformations* is suppose to suggest that you think of movement.
+A great way to understand functions of vectors is to use movement. If a transformation takes some input vector to some output vector we imagine that input vector moving to the output vector.
 
-https://youtu.be/k7RM-ot2NWY?si=FGPTrwEdwiRxg7wp&t=359
+![Linear Transformation Move Img](/img/Math/LinearTransformationMove.png)
+
+To understand the transformation as a whole we can image every possible input vector moving over to their possible output vector. We can imagine it as every point in space moving to another point. So can squish and morph the space.
+
+In Linear algebra we can only do linear transformations. A transformation is linear when it has two properties - all lines must remain lines and the origin must remain fixed. The grid lines stay parallel and evenly spaced. 
+
+![Rotation Transformation Img](/img/Math/RotationMatrix.png)
+
+How to describe transformations numerically?
+You only need to record where basis vectors `î`and `ĵ` land after the transformation. If we have the vector v with coordinates `[-1,2]` we have `v=-1î + 2ĵ`
+
+![Linear Transformations With Example Vector Img](/img/Math/LinearTransformationsVector.png)
+If we apply some transformation and follow where all these three vectors go. The place where v lands will be `-1` times where `î` landed and `2` times the vector where `ĵ` landed. So the starting linear combination of `î`and `ĵ` will remain after the transformation. `Transformed v = -1(transformed î) + 2(Transformed ĵ)`
+
+![Applied Transformations With Example Vector Img](/img/Math/AppliedTransformationLinearCombination.png)
+
+So you can deduce where v must go based on where `î` and `ĵ` land. So we can calculate where any vector land as long as we know where the two basis vectors land.
+
+
+
+
+
+
+https://youtu.be/kYB8IZa5AuE?si=EAoBQ26hCWQpdwpr&t=209 6:12
+
+
+
+
+
+
 
 ## Deeper concepts
 When you have a pair of numbers that is meant to describe a vector like `[2,3]` you can think of each coordinate as a *scalar*. Each one stretches or squishes vectors.
@@ -222,9 +254,15 @@ If two orignal vectors line up, the tip of the resulting vector is limited to th
 
 The *span* of two vectors is way of asking: "What are all possible vectors that you can reach using only vector addition and scalar multiplication."
 
+When we use the two vectors in 3D space we get a flat sheet of points that we can define.
+
+When we have a *linear combination of three vectors v,w and u* we get `av+bw+cu`. Again the span of these three vectors is the span of all linear possible combinations. As long as the three vectors don't have the same direction/line up we can get any possible vector in 3D space with this linear combination. *Linearly dependent* or *Linearly independent*
+
+
 ### Vectors vs Points
 We can think of all the possible vectors in the 2D space also as a point at the position of the tip of the vector.
 
 ![Points From Vector Img](/img/Math/PointsFromVector.png)
 
 When you think of a single vector you can think of it as an arrow and when you have a set of vectors you can think of them as points in the space.
+

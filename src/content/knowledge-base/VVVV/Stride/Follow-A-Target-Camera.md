@@ -13,4 +13,4 @@ When we animate the *target position* we create a shifting gaze effect.
 
 The `LookAt` creates a *LookAt-Matrix* which we plug into the `ViewMatrix` input of the camera.
 
-![LightShaft Patch](/files/VVVV/LookAtStride.vl)
+[Look At Patch](/files/VVVV/LookAtStride.vl)

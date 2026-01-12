@@ -2,8 +2,10 @@ import ReactMarkdown from 'react-markdown'
 import P5Sketch from './P5Sketch'
 import GLSLShader from './GLSLShader'
 import ClickableImage from './ClickableImage'
+import YouTubeEmbed from './YoutubeEmbed'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { getYouTubeId, isYouTubeUrl } from '../utils/youtubeHelper'
 
 // Custom renderer that handles special code blocks
 const IMAGE_BASE_PATH = '..assets/img'
@@ -73,6 +75,19 @@ function MarkdownRenderer({ content,articles,onArticleSelect,onDownloadClick }) 
       </a>
     )
   }
+
+  // YouTube link - embed video
+          if (href && isYouTubeUrl(href)) {
+            const videoId = getYouTubeId(href)
+            if (videoId) {
+              return (
+                <div className="youtube-wrapper">
+                  <YouTubeEmbed videoId={videoId} />
+                  {children && <p className="video-caption">{children}</p>}
+                </div>
+              )
+            }
+          }
   
   // External link (http/https)
   if (href && (href.startsWith('http://') || href.startsWith('https://'))) {

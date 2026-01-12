@@ -179,18 +179,25 @@ An octave has 12 semitones, including the 8 whitekeys on a piano - CDEFGABC. Dif
 
 The `Rescale` or `Quantizer` module in VCV is helpful to map your *control voltage* into a voltage range of the pitch that you want to create.
 
-### Quantizer
-The `Quantizer` modules converts a CV signal into steps on a scale and allows us to stay in a specific scale and choose musical intervals.
+## Quantizer
+The `Quantizer` modules converts a CV signal into steps on a musical scale and allows us to stay in a specific scale and choose musical intervals.
 
-It maps the incoming CV signal to the values of the scales.
-!!!
 https://www.youtube.com/watch?v=FYJiFe2S_II
 
-#### Tuning Oscillators
+### Tuning Oscillators
 If you want that the *oscillators* are all tuned and in the same octave you can use `Quantizer`, only activate the lowest c key. Then you output that into a `Mult` node, which copies the input into multiple outputs and then you can connect these to all your `V/Oct` inputs of your oscillators.
 
+
+## Envelope Generator
+Envelope Generator can shape the amplitude or the timbre of a sound over time. The most commonly used is an `ADSR` which stands for *Attack*,*Decay*,*Sustain* and *Release*. There are also envelopes which have only *AD*,*ADR* or *AD* with less stages.
+
+![ADSR Module with its stages](/img/VCV/ADSR.png)
+
+When using a `Gate` signal it triggers the envelope to start, going through the *Attack* and *Decay* phases and it stays in the *sustain* phase as long as the signal is `HIGH`. When the `Gate` signal goes to `LOW` the ADSR goes through the *Release* phase.
+
+
 ## Subtractive Synthesizer Voice
-Because the `VCO` or `Noise` modules are outputting a continuous audio signal we want to convert them into notes with a start and an end. For that we can create a *subtractive synthesizer voice*.
+Because the `VCO` or `Noise` modules are outputting a continuous audio signal we want to convert them into single sounds with a start and an end. For that we can create a *subtractive synthesizer voice*.
 
 The idea of a *subtractive synthesizer voice* is that we use modules like an `Envelope` or `Filter` to subtract parts of a source signal. 
 
@@ -200,44 +207,37 @@ You can begin with a `VCA` to regulate the amplitude/volume information of the s
 
 We then can further shape the note with for example a `VCF`.
 
-#### Sequencer
+
+## Sequencer
 A sequencer holds a sequence of voltages or events like triggers that allow to control for examples pitches or modulation. By inputting a clock signal it jumps one step further per input signal.
 
 ![Sequencer Module Img](/img/VCV/Sequencer.png)
 The VCV `Sequencer` has an internal clock signal. Every time the clock signal triggers the `Sequencer` goes one step further through the values of the attenuator of the first row.
 
-##### Gate Sequencer
+### Gate Sequencer
 A `Gate Sequencer` allows us to create rhythmic pattern where on each `CLK` input there will be outputted a Gate/Trigger signal or not.
 ![Basic Gate Sequencer Module Img](/img/VCV/BasicGateSequencerVCV.png)
 
-##### Polymeter
+### Polymeter
 When you use different rhythmic cycles that run independently and that doesn't repeat at the same time, it is called *polymeter*. To create a *polymeter* we can use two sequencer that have the same `CLK` input and give each sequencer different amount of steps.
 
 ![PolymeterSequencer Img](/img/VCV/PolymeterSequencer.png)
 
-The two sequencees will cycle through a certain amount of steps before they realign at the same starting point together. This creates evolving, shifting rhythmic relationships.
+The two sequencers will cycle through a certain amount of steps before they realign at the same starting point together. This creates evolving, shifting rhythmic relationships.
 
-#### Envelope Generator
-Envelope Generator can shape the amplitude or the timbre of a sound over time. The most commonly used is an `ADSR` which stands for *Attack*,*Decay*,*Sustain* and *Release*. There are also envelopes which have only *AD*,*ADR* or *AD* with less stages.
-
-![ADSR Module with its stages](/img/VCV/ADSR.png)
-
-When using a `Gate` signal it triggers the envelope to start, going through the *Attack* and *Decay* phases and it stays in the *sustain* phase as long as the signal is `HIGH`. When the `Gate` signal goes to `LOW` the ADSR goes through the *Release* phase.
-
-
-#### Delay
+## Delay
 The `delay` module records an audio signal and plays it back after some amount of time.
 
 Put the delay at the end when you want the sound to fade out or continue to live although the source stopped emitting sound.
 
-#### S+H - Sample And Hold
+## S+H - Sample And Hold
 The `S+H` module captures and holds an input signal at a specific moment. The sampled value gets outputted continuously until there is a new trigger input to capture the next value.
 With a `S+H` we can *freeze* an input signal when the module gets triggered.
 === better
 To make the transition smoother between the stepped values we can use a `Process` module and use the *slew limiter* to make the transition smoother.
 ===
 
-#### Process
+## Process
 
 
 ## Basic Sounds
@@ -258,8 +258,6 @@ Another way is to send the signal from the second `ADSR` into the FM input of th
 
 
 To add some character you can add a `Filter` or `Noise`.
-
-
 
 ### Hi-Hat
 For a *Hi-hat* we use a `Noise` as a source because it is a non-tonal, percussive sound. We need also a `Filter` to keep only the bright, sizzly frequencies. Then shape it with an `ADSR` which goes into a `VCA` with a short envelope for quick, crisp hit.
