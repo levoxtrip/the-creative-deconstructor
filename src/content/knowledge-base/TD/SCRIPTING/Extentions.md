@@ -1,0 +1,2 @@
+# Extentions
+*Extentions* in TD allows you to define classes that extent your components. The class has functions that then are available to the operator as if they are native to it. So we can add functionality to the component operators.

@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "thumbnails": "node scripts/generateThumbnails.js"
   },
   "dependencies": {
     "@fontsource/ibm-plex-sans-condensed": "^5.2.8",
     "@fontsource/inter": "^5.2.8",
+    "canvas": "^3.2.1",
     "fuse.js": "^7.1.0",
     "p5": "^2.1.1",
     "react": "^19.2.0",

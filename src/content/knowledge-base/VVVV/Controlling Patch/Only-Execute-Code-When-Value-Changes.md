@@ -1,4 +1,8 @@
-
+---
+title: Only Execute Code When Value Changed
+description: How to only execute code when a value changes
+thumbnail_text: Learn how to only execute code when a value changes
+---
 
 ![Invoke Delegate Img](/img/VVVV/OnlyExecuteWhenValueChanged.png)
 # Only Execute Code When Value Changed
