@@ -331,22 +331,214 @@ void main(){
 }
 ```
 ### Rectangle
-When we want to draw a rectangle we have to thing about what "inside a rectangle* means.
+When we want to draw a rectangle we have to think about what "inside a rectangle* means.
 For a rectangle centered at origin with a width W and a height H:
 - A point is inside if its x-coordinates are between -W/2 and +W/2
 - AND its y-coordinates are between -H/2 and H/2
 
+IMAGE HERE
+
 So now we want to think about the distance of a point, that is outside the rectangle, towards the nearest edge of the shape.
 Because a rectangle is symmetric we can fold space and put our focus on only one quadrant. A point at (-0.3,0.2) has the same distance to the rectangle as a point at (0.3,0.2). So the sign doesn't matter for the distance - only its magnitude. 
 For that can use `abs(uv)`. We then subtract half the size of the rectangle `size*0.5` to get the distance of the point towards the edge of the rectangle. Negative means inside and positive means outside.
+
+We have two distances dist.x and dist.y. We need *one* number that tells us inside or outside of the shape.
+What operation on two numbers gives a negative result only when both inputs are negative? Max picks the bigger of the two inputs. If one number is positive, max returns something positive. The only way to get a neative result is if both numbers are negative - meaning inside both dimentions of the rectangle.
+
+For the rectangle: You're only inside if you're inside both x and y dimention of the rectangle.
+
+To combine the x and y distances of the point into a single distance we use the `max()` function. It returns the bigger of the two distances.
+```
+max(0.3,0.7)// returns 0.7
+max(-0.9,0.2)// returns 0.2
+```
+If either component is positive, the `max()` is positive, so you're outside. Only if both are negative (inside on both axes) is the `max()` negative.
+
+For our rectangle we want to be inside on *both* axes, so we need both numbers to be negative. With `max()` the only way it's negative is if both inputs were negative(so both are inside the rectangle)
+
+IMAGE HERE
 
 
 ```
 float rectSDF(vec2 uv,vec2 size){
 	vec2 dist = abs(uv) - size * 0.5;
 	return max(dist.x,dist.y);
+}
+```
+CODE HERE
 
+
+### LineSDF
+A line segment is a straight path from point A to B. Imagine you are standing somewhere in space. What you want to know is *how far* is the *nearest point on that line segment* from you? So you want to reach the line by moving the shortest possible distance. 
+This is only possible if:
+*You are alongside the path*
+You walk straight torward it, perpendicular to the path.
+```
+        You •
+            |
+            ↓  (straight down, perpendicular)
+    A ======×====== B
+            ↑
+        closest point
+```
+*You are "behind" point A*
+So the closest point on the path is A itself. By walking perpendicular you would miss the path entirely.
+```
+You •
+         
+            (diagonal to A)
+           ↘
+    	A ============ B
+```
+*You are "past" point B*
+```
+                        You •
+                       
+                        (diagonal to B)
+                     ↙
+    A ============ B
+```
+So what we have to figure out is which case we are currently in, and find the closes point, then measure the distance.
+
+What do we have?
+`a` position of point A (start of line)
+`b` position of point B (end of line)
+`uv` position of pixel you are evaluating(where "you" are standing)
+
+So given these inputs we need to find the *closest point on segment AB to pixel, then return the distance.
+
+We start by creating to vectors that describe the line geometry.
+```
+vec2 pa = uv-a; // Vector from A to the pixel
+vec2 ba = b -a; // Vector from A to B (Line itself)
+`` 
+If we have a point A = (0,0), B = (4,0) and the pixel is at (1,3)
+
+```
+        pixel (1, 3)
+          •
+         /|
+      pa/ |
+       /  |
+      /   |
+     /    |
+    A-----+--------B
+   (0,0)  ↑       (4,0)
+          |
+    closest point is somewhere here
+    
+    pa = (1, 3) - (0, 0) = (1, 3)    // points from A toward pixel
+    ba = (4, 0) - (0, 0) = (4, 0)    // points from A toward B
+```
+
+Next we want to find where along the line the closest point is. We do this by dropping a perpendicular line from the currently calculated pixel down to the line.
+
+We can express this as a number `t` between 0 and 1 where:
+t=0 -> closest point is A
+t=1 -> closest point is B
+t=0.5 -> closest point is halfway between
+
+To find `t` we can use *dot product*. It measures how much one vector points in the direction of the other or *how much of vector pa goes in the direction of ba?*.
+
+```
+float t = dot(pa,ba)/dot(ba,ba);
+```
+Because the dot product gives us an absolute amount we want to normalize it. We can do this by dividing it with the line's squared length, which converts this to a fraction of the line's total length and a normalized value for t.
+
+As an example:
+```
+A = (0,0), B =(4,0), pixel at (1,3)
+pa = (1,3)
+ba=(4,0)
+
+dot(pa,ba) = 1*4 + 0*3 = 4
+dot(ba,ba)= 4*4 + 0*0 = 16
+
+t = 4/16 = 0.25 -> the closest point is 25% of the way from A to B.
+
+closest = a + t *ba
+		= (0,0) + 0.25 *(4,0)
+		= (0,0) + (1,0)
+		= (1,0)
+```
+We then evaluate the distance from the closest point on the line to our currently calculated pixel
+`distance = length(pixel-closest)`
+
+For now we just handled the cases where the point lies *over* the line. Now we still need to handle the edge cases for the endpoints of the line.
+
+The question that we need to ask is **what if t comes out negative or bigger than 1?*
+
+`If t < 0 -> Projection falls "before" point A -> closest point on line is A itself`
+
+`If t > 1 -> Projection falls "past" point B -> closest point on the line is B itself`
+
+```
+A = (0,0), B = (4,0), pixel at (-2,1)
+
+pa = (-2,1) - (0,0) = (-2,1)
+ba = (4,0)
+
+dot(pa,ba) = (-2)*4 +1*0 = -8
+dot(ba,ba) = 16
+
+t = -8/16 = -0.5 -> negative t -> pixel behind A
+```
+To avoid that we find a point that is not even on the line we need to clamp t for values between 0.0 and 1.0.
+
+`t = clamp(t,0.0,1.0);//Forces t to stay between 0 and 1`
+
+Now we got everything to draw our line. Here the whole code 
+```
+float lineSDF(vec2 uv,vec2 a, vec2 b, float thickness){
+	vec2 pa = uv -a;//Vector from A to point
+	vec2 ba = b -a;//Vector from A to B
+
+	// Project pixel onto line - what fraaction along AB?
+	float t = dot(pa,ba) / dot(ba,ba);
+
+	//Clamp to line (don't go past endpoints)
+	t = clamp(t,0.0,1.0);
+
+	//find actual closest point
+	vec2 closest = a + t *ba;
+
+	//return distance to that point, minus thickness
+	return length(uv-closest) -thickness;
+}
+```
+```glsl
+uniform vec2 u_resolution;
+
+float lineSDF(vec2 uv,vec2 a, vec2 b, float thickness){
+	vec2 pa = uv -a;
+	vec2 ba = b - a;
+
+	float t = dot(ba,pa)/dot(ba,ba);
+
+	t = clamp(t,0.0,1.0);
+
+	vec2 closest = a + t*ba;
+
+	return length(closest-uv)-thickness;
 }
 
+void main(){
+    vec2 uv = gl_FragCoord.xy/u_resolution.xy;
+    uv.x *= u_resolution.x/u_resolution.y;
 
+    vec3 color = vec3(0.);
+    float shape = lineSDF(uv,vec2(0.1,0.1),vec2(0.9,0.9),0.007);
+	shape = 1.0-step(0.0,shape);
+    color = vec3(shape);
+    gl_FragColor = vec4(color,1.0);
+}
+```
+So the lineSDF answers: "Which point on this line segment is nearest to me and how far away is it?.
 
+We find this in three steps. First, project our position onto the infinite line to find where we  would land if we dropped straight onto it. 
+Second, we clamp that projection so it stays within the actual line segment. 
+Third we measure distance from ourselves to that closest point.
+
+This pattern repeats throughout SDFs. Whenever you need the distance to a bounded shape, you project onto its surface, constrain to its boundaries and then measure it.
+
+## Patterns and Tiling

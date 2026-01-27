@@ -19,4 +19,11 @@ To remove a public channel, you first have to delete the `PublicChannel` nodes i
 ## Snapshots
 *Snapshots* of your public channel allow you to store certain states of the channel and create transitions between different snapshots. The values will be smoothly converted.
 
+## Presets
+You can store presets via the channel browser *preset* column.
+To store presets via nodes:
+![Store And Trigger Preset Img](/img/VVVV/StoreAndTriggerPreset.png)
+You can use the preset with the `TriggerPreset` node.
 
+## Binding
+Binding the `PublicChannel` allows you to espose them to the outside world of the app. For example OSC or MIDI.
