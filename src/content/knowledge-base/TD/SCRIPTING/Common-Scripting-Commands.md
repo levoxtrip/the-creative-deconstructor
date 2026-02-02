@@ -7,3 +7,6 @@
 for i in range(1,3):
 	 op('table{0}'.format(i))[0,0]
 ```
+
+## Get dimention of table
+`op('table1').dims`

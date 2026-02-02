@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Layout from './components/Layout'
 import Headline from './components/Headline'
+import Subline from './components/Subline'
 import Tabbar from './components/Tabbar'
 import Footer from './components/Footer'
 import SearchBar from './components/SearchBar'
@@ -87,16 +88,23 @@ const handleArticleSelect = useCallback((article) => {
   return (
     <>
       <Headline />
+            <Tabbar
+        currentSection={currentSection}
+        onSectionChange={setCurrentSection}
+      />
+      
+       {/* {currentSection === 'home' && (
+      <Subline/>
+
+      )} */}
+            {/* <WelcomeCanvas isHomeActive={currentSection==='home'}/> */}
+
 <WelcomeCanvas 
   isHomeActive={currentSection === 'home'} 
   articles={articles}
   onArticleSelect={handleArticleSelect}
 />
-      {/* <WelcomeCanvas isHomeActive={currentSection==='home'}/> */}
-      <Tabbar
-        currentSection={currentSection}
-        onSectionChange={setCurrentSection}
-      />
+
 
       {/* Search bar - show when not on home */}
       {currentSection !== 'home' && (

@@ -26,6 +26,10 @@ font-family: var(--font-heading);
   margin: 0;
 }
 
+h2{
+font-family: var(--font-heading);
+}
+
 p {
   font-size: 1.2rem;
   line-height: 1.6;
@@ -39,8 +43,17 @@ p {
 
 .header {
   text-align: center;
-  padding: 40px 20px;
+  padding: 40px 10px;
   margin-bottom: 20px;
+  
+}
+
+.sub-header{
+  text-align: left;
+  background-color: #e0e0e0;
+  padding: 10px 20px;
+  border-radius: 8px;
+  width: 20vw;
 }
 
 .layout {
@@ -52,12 +65,15 @@ p {
 /* ---------------------TAB BAR---------------*/
 .tabbar{
 
-    padding: 20px;
+  background-color: #e0e0e0;
+  
+  margin-top: 10px;
   border-radius: 8px;
+
 }
 
 .section-tab{
-  background: none;
+  background-color: #e0e0e0;
   
   padding:20px;
   margin: 30px;
@@ -644,7 +660,7 @@ pre code {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -1;          /* Behind other content */
+  z-index: -1;       
   transition:filter 0.5s ease;
 }
 
