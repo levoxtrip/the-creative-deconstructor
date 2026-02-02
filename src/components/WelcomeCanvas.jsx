@@ -10,6 +10,8 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
   const controlsRef = useRef(null);
   const frameRef = useRef(null);
   const tilesRef = useRef([]);
+  const layersRef = useRef([]);
+  const connectionsRef = useRef([]);
   const raycasterRef = useRef(new THREE.Raycaster());
   const mouseRef = useRef(new THREE.Vector2());
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
@@ -19,10 +21,15 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
   const isHomeActiveRef = useRef(isHomeActive);
   const onArticleSelectRef = useRef(onArticleSelect);
   const eventHandlersRef = useRef({});
+  const isInitializedRef = useRef(false);
+  const createTilesRef = useRef(null);
+  const wasHomeActiveRef = useRef(isHomeActive);
+  const timeRef = useRef(0);
 
-  // Keep refs updated
   useEffect(() => {
+    const wasHomeActive = wasHomeActiveRef.current;
     isHomeActiveRef.current = isHomeActive;
+    wasHomeActiveRef.current = isHomeActive;
 
     if (!isHomeActive) {
       if (labelRef.current) {
@@ -35,9 +42,12 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
         hoveredTileRef.current.userData.isHovered = false;
         hoveredTileRef.current = null;
       }
+    } else if (!wasHomeActive && isHomeActive) {
+      if (createTilesRef.current) {
+        createTilesRef.current();
+      }
     }
 
-    // Enable/disable controls based on isHomeActive
     if (controlsRef.current) {
       controlsRef.current.enabled = isHomeActive;
     }
@@ -47,21 +57,20 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     onArticleSelectRef.current = onArticleSelect;
   }, [onArticleSelect]);
 
-  // Initialize scene and animation loop
   useEffect(() => {
-    if (!canvasRef.current || !articles?.length) return;
+    if (!canvasRef.current || !articles?.length || isInitializedRef.current) return;
+    
+    isInitializedRef.current = true;
 
     const sizes = {
       width: window.innerWidth,
       height: window.innerHeight,
     };
 
-    // Scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xeeeeee);
     sceneRef.current = scene;
 
-    // Camera
     const camera = new THREE.PerspectiveCamera(
       50,
       sizes.width / sizes.height,
@@ -72,7 +81,6 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     cameraRef.current = camera;
     scene.add(camera);
 
-    // Renderer
     const renderer = new THREE.WebGLRenderer({
       canvas: canvasRef.current,
       antialias: true,
@@ -81,7 +89,6 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     rendererRef.current = renderer;
 
-    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.enableZoom = true;
@@ -90,7 +97,6 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     controls.enabled = isHomeActiveRef.current;
     controlsRef.current = controls;
 
-    // Create label element
     const label = document.createElement("div");
     label.style.cssText = `
       position: fixed;
@@ -109,65 +115,157 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     document.body.appendChild(label);
     labelRef.current = label;
 
-    // Layer config
-    const layerCount = 3;
-    const layerSpacing = 12;
-    const tileSize = 3;
-    const gridSize = 10;
+    const createTiles = () => {
+  // Clean up previous tiles
+  tilesRef.current.forEach((tile) => {
+    tile.geometry.dispose();
+    tile.material.dispose();
+  });
+  layersRef.current.forEach((layer) => {
+    scene.remove(layer);
+  });
+  // Clean up previous connections
+  connectionsRef.current.forEach((conn) => {
+    conn.line.geometry.dispose();
+    conn.line.material.dispose();
+    scene.remove(conn.line);
+  });
+  tilesRef.current = [];
+  layersRef.current = [];
+  connectionsRef.current = [];
 
-    // Filter out index files and shuffle
-    const validArticles = articles.filter((a) => a.title !== "index");
-    const shuffledArticles = [...validArticles].sort(() => Math.random() - 0.5);
+  const layerCount = 3 + Math.floor(Math.random() * 3);
+  const layerSpacing = 10 + Math.random() * 5;
+  const tileSize = 3;
+  
+  // Either lots of gaps (80-100%) or no gaps at all
+  let gapProbability;
+  if (Math.random() < 0.5) {
+    // 50% chance: sparse grid with lots of gaps
+    gapProbability = 0.8 + Math.random() * 0.2; // 80-100% gaps
+  } else {
+    // 50% chance: full grid with no gaps
+    gapProbability = 0;
+  }
 
-    // Create layers
-    for (let layer = 0; layer < layerCount; layer++) {
-      const zPos = -layer * layerSpacing;
+  const validArticles = articles.filter((a) => a.title !== "index");
+  const shuffledArticles = [...validArticles].sort(() => Math.random() - 0.5);
 
-      for (let gx = 0; gx < gridSize; gx++) {
-        for (let gy = 0; gy < gridSize; gy++) {
-          const x = (gx - gridSize / 2 + 0.5) * tileSize;
-          const y = (gy - gridSize / 2 + 0.5) * tileSize;
+  let articleIndex = 0;
 
-          const tileIndex = layer * gridSize * gridSize + gx * gridSize + gy;
-          const article =
-            shuffledArticles[tileIndex % shuffledArticles.length];
+      for (let layer = 0; layer < layerCount; layer++) {
+        const zPos = -layer * layerSpacing;
+        const gridSize = 8 + Math.floor(Math.random() * 2);
+        
+        const layerGroup = new THREE.Group();
+        layerGroup.position.z = zPos;
 
-          const geometry = new THREE.PlaneGeometry(
-            tileSize * 0.95,
-            tileSize * 0.95
-          );
+        for (let gx = 0; gx < gridSize; gx++) {
+          for (let gy = 0; gy < gridSize; gy++) {
+            if (Math.random() < gapProbability) continue;
 
-          const hue = Math.random();
-          const material = new THREE.MeshBasicMaterial({
-            color: new THREE.Color().setHSL(hue, 0.5, 0.6),
-            transparent: true,
-            opacity: 0.05,
-            side: THREE.DoubleSide,
-          });
+            const x = (gx - gridSize / 2 + 0.5) * tileSize;
+            const y = (gy - gridSize / 2 + 0.5) * tileSize;
 
-          const tile = new THREE.Mesh(geometry, material);
-          tile.position.set(x, y, zPos);
+            const article = shuffledArticles[articleIndex % shuffledArticles.length];
+            articleIndex++;
 
-          tile.userData = {
-            article,
-            baseOpacity: 0.05,
-            hoverOpacity: 1.00,
-            hue,
-            isHovered: false,
-          };
+            const geometry = new THREE.PlaneGeometry(
+              tileSize * 0.97,
+              tileSize * 0.97
+            );
 
-          const edges = new THREE.EdgesGeometry(geometry);
-          const line = new THREE.LineSegments(
-            edges,
-            new THREE.LineBasicMaterial({ color: 0x888888 })
-          );
-          tile.add(line);
+            const hue = Math.random();
+            const material = new THREE.MeshBasicMaterial({
+              color: new THREE.Color().setHSL(hue, 0.5, 0.6),
+              transparent: true,
+              opacity: 0.05,
+              side: THREE.DoubleSide,
+            });
 
-          scene.add(tile);
-          tilesRef.current.push(tile);
+            const tile = new THREE.Mesh(geometry, material);
+            tile.position.set(x, y, 0);
+
+            tile.userData = {
+              article,
+              baseOpacity: 0.05,
+              hoverOpacity: 1.0,
+              hue,
+              isHovered: false,
+              worldPos: new THREE.Vector3(x, y, zPos),
+            };
+
+            const edges = new THREE.EdgesGeometry(geometry);
+            const line = new THREE.LineSegments(
+              edges,
+              new THREE.LineBasicMaterial({ color: 0x888888 })
+            );
+            tile.add(line);
+
+            layerGroup.add(tile);
+            tilesRef.current.push(tile);
+          }
         }
+
+        scene.add(layerGroup);
+        layersRef.current.push(layerGroup);
       }
-    }
+
+      // Create connections between random tiles
+      const numConnections = 15 + Math.floor(Math.random() * 20); // 15-35 connections
+      const tiles = tilesRef.current;
+
+      for (let i = 0; i < numConnections; i++) {
+        const tileA = tiles[Math.floor(Math.random() * tiles.length)];
+        const tileB = tiles[Math.floor(Math.random() * tiles.length)];
+        
+        if (tileA === tileB) continue;
+
+        const posA = tileA.userData.worldPos;
+        const posB = tileB.userData.worldPos;
+        
+        // Skip if tiles are too far apart
+        const distance = posA.distanceTo(posB);
+        if (distance > 40) continue;
+
+        // Create line geometry
+        const lineGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(6); // 2 points × 3 coordinates
+        positions[0] = posA.x;
+        positions[1] = posA.y;
+        positions[2] = posA.z;
+        positions[3] = posA.x; // Start at same point (will animate)
+        positions[4] = posA.y;
+        positions[5] = posA.z;
+        lineGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const hue = Math.random();
+        const lineMaterial = new THREE.LineBasicMaterial({
+          color: new THREE.Color().setHSL(hue, 0.7, 0.5),
+          transparent: true,
+          opacity: 0,
+        });
+
+        const line = new THREE.Line(lineGeometry, lineMaterial);
+        scene.add(line);
+
+        connectionsRef.current.push({
+          line,
+          startPos: posA.clone(),
+          endPos: posB.clone(),
+          progress: 0,
+          speed: 0.005 + Math.random() * 0.015, // Random speed
+          delay: Math.random() * 5, // Random start delay (seconds)
+          duration: 2 + Math.random() * 3, // How long line stays visible
+          phase: 'waiting', // waiting, drawing, visible, fading
+          timeInPhase: 0,
+          hue,
+        });
+      }
+    };
+
+    createTilesRef.current = createTiles;
+    createTiles();
 
     // Event handlers
     const onMouseDown = (event) => {
@@ -176,8 +274,12 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     };
 
     const onMouseMove = (event) => {
-      mouseRef.current.x = (event.clientX / sizes.width) * 2 - 1;
-      mouseRef.current.y = -(event.clientY / sizes.height) * 2 + 1;
+      const currentSizes = {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      };
+      mouseRef.current.x = (event.clientX / currentSizes.width) * 2 - 1;
+      mouseRef.current.y = -(event.clientY / currentSizes.height) * 2 + 1;
 
       const dx = event.clientX - mouseDownPosRef.current.x;
       const dy = event.clientY - mouseDownPosRef.current.y;
@@ -197,9 +299,7 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
       if (isDraggingRef.current) return;
 
       raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
-      const intersects = raycasterRef.current.intersectObjects(
-        tilesRef.current
-      );
+      const intersects = raycasterRef.current.intersectObjects(tilesRef.current);
 
       if (intersects.length > 0) {
         const tile = intersects[0].object;
@@ -210,14 +310,15 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     };
 
     const handleResize = () => {
-      sizes.width = window.innerWidth;
-      sizes.height = window.innerHeight;
-      camera.aspect = sizes.width / sizes.height;
+      const newSizes = {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      };
+      camera.aspect = newSizes.width / newSizes.height;
       camera.updateProjectionMatrix();
-      renderer.setSize(sizes.width, sizes.height);
+      renderer.setSize(newSizes.width, newSizes.height);
     };
 
-    // Store handlers for cleanup
     eventHandlersRef.current = {
       onMouseDown,
       onMouseMove,
@@ -231,20 +332,81 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     window.addEventListener("resize", handleResize);
 
     // Animation loop
+    let lastTime = performance.now();
+    
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate);
+      
+      const currentTime = performance.now();
+      const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
+      lastTime = currentTime;
 
-      // Always update controls (handles damping even when not actively dragging)
-      controls.update();
-
-      // Raycaster hover logic (only when home is active)
       if (isHomeActiveRef.current) {
-        raycasterRef.current.setFromCamera(mouseRef.current, camera);
-        const intersects = raycasterRef.current.intersectObjects(
-          tilesRef.current
-        );
+        controls.update();
+        timeRef.current += deltaTime;
 
-        // Reset previous hover
+        // Animate connections
+        connectionsRef.current.forEach((conn) => {
+          conn.timeInPhase += deltaTime;
+
+          switch (conn.phase) {
+            case 'waiting':
+              if (conn.timeInPhase >= conn.delay) {
+                conn.phase = 'drawing';
+                conn.timeInPhase = 0;
+                conn.progress = 0;
+              }
+              break;
+
+            case 'drawing':
+              conn.progress += conn.speed * 60 * deltaTime;
+              if (conn.progress >= 1) {
+                conn.progress = 1;
+                conn.phase = 'visible';
+                conn.timeInPhase = 0;
+              }
+              // Update line endpoint
+              const positions = conn.line.geometry.attributes.position.array;
+              positions[3] = conn.startPos.x + (conn.endPos.x - conn.startPos.x) * conn.progress;
+              positions[4] = conn.startPos.y + (conn.endPos.y - conn.startPos.y) * conn.progress;
+              positions[5] = conn.startPos.z + (conn.endPos.z - conn.startPos.z) * conn.progress;
+              conn.line.geometry.attributes.position.needsUpdate = true;
+              conn.line.material.opacity = 0.6;
+              break;
+
+            case 'visible':
+              if (conn.timeInPhase >= conn.duration) {
+                conn.phase = 'fading';
+                conn.timeInPhase = 0;
+              }
+              break;
+
+            case 'fading':
+              const fadeProgress = conn.timeInPhase / 1; // 1 second fade
+              conn.line.material.opacity = 0.6 * (1 - fadeProgress);
+              if (fadeProgress >= 1) {
+                // Reset and start again
+                conn.phase = 'waiting';
+                conn.timeInPhase = 0;
+                conn.delay = Math.random() * 5;
+                conn.progress = 0;
+                conn.line.material.opacity = 0;
+                
+                // Reset line to start position
+                const pos = conn.line.geometry.attributes.position.array;
+                pos[3] = conn.startPos.x;
+                pos[4] = conn.startPos.y;
+                pos[5] = conn.startPos.z;
+                conn.line.geometry.attributes.position.needsUpdate = true;
+              }
+              break;
+          }
+        });
+
+        // Raycaster hover logic
+        raycasterRef.current.setFromCamera(mouseRef.current, camera);
+        const intersects = raycasterRef.current.intersectObjects(tilesRef.current);
+
         if (
           hoveredTileRef.current &&
           hoveredTileRef.current !== intersects[0]?.object
@@ -259,7 +421,6 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
           document.body.style.cursor = "default";
         }
 
-        // Handle new hover
         if (intersects.length > 0) {
           const tile = intersects[0].object;
           if (!tile.userData.isHovered) {
@@ -285,15 +446,14 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     animate();
 
     return () => {
-      // Cancel animation frame
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
       }
 
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("click", onClick);
-      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("resize", handleResize);
 
       if (labelRef.current && document.body.contains(labelRef.current)) {
         document.body.removeChild(labelRef.current);
@@ -304,15 +464,17 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
         tile.geometry.dispose();
         tile.material.dispose();
       });
-      tilesRef.current = [];
+
+      connectionsRef.current.forEach((conn) => {
+        conn.line.geometry.dispose();
+        conn.line.material.dispose();
+      });
 
       controls.dispose();
       renderer.dispose();
 
-      sceneRef.current = null;
-      cameraRef.current = null;
-      controlsRef.current = null;
-      rendererRef.current = null;
+      isInitializedRef.current = false;
+      createTilesRef.current = null;
     };
   }, [articles]);
 

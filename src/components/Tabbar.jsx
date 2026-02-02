@@ -6,11 +6,11 @@ function Tabbar({currentSection,onSectionChange}){
         >Home</button>
 
       <button onClick={()=>onSectionChange('blog')}
-        className={currentSection === 'blog' ? 'section-tab active' : 'section-tab'}>blog</button>
+        className={currentSection === 'blog' ? 'section-tab active' : 'section-tab'}>Blog</button>
       <button onClick={()=>onSectionChange('articles')}
-        className={currentSection === 'articles' ? 'section-tab active' : 'section-tab'}>articles</button>
+        className={currentSection === 'articles' ? 'section-tab active' : 'section-tab'}>Articles</button>
       <button onClick={()=>onSectionChange('knowledge-base')}
-        className={currentSection === 'knowledge-base' ? 'section-tab active' : 'section-tab'}>knowledge</button>
+        className={currentSection === 'knowledge-base' ? 'section-tab active' : 'section-tab'}>Knowledge</button>
     </div>
     )
 }

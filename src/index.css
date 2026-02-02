@@ -65,7 +65,7 @@ p {
 /* ---------------------TAB BAR---------------*/
 .tabbar{
 
-  background-color: #e0e0e0;
+
   
   margin-top: 10px;
   border-radius: 8px;
@@ -73,18 +73,17 @@ p {
 }
 
 .section-tab{
+font-family: var(--font-heading);
+  font-weight: 700;
   background-color: #e0e0e0;
-  
-  padding:20px;
-  margin: 30px;
+  border: none;
+  padding:10px;
+  margin: 15px;
   color: #2a2a2a;
    box-sizing: border-box; /* ADDED: Includes padding in width calculation */
    font-size: 22px;
 }
 
-.section-tab:active{
-
-}
 /* ---------------------FOOOTer---------------*/
 .footer{
   position: fixed;
