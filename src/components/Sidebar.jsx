@@ -35,16 +35,13 @@ function Sidebar({ articles, onArticleSelect, currentSection }) {
 
   const tree = buildTree(sectionArticles)
 
-  // Toggle folder - closes others at same level
   const toggleFolder = (path) => {
     const pathStr = path.join('/')
     const currentStr = expandedPath.join('/')
 
     if (currentStr.startsWith(pathStr)) {
-      // Clicking open folder or parent - close it
       setExpandedPath(path.slice(0, -1))
     } else {
-      // Open this folder (closes others)
       setExpandedPath(path)
     }
   }
@@ -108,7 +105,7 @@ function TreeNode({ tree, onArticleSelect, path, toggleFolder, isExpanded }) {
                 )}
 
                 {node._articles.length > 0 && (
-                  <ul className="tree-articles">
+                  <ul className={`tree-articles ${node._articles.length > 8 ? 'scrollable' : ''}`}>
                     {node._articles.map(article => (
                       <li 
                         key={article.id}
@@ -118,7 +115,9 @@ function TreeNode({ tree, onArticleSelect, path, toggleFolder, isExpanded }) {
                           onArticleSelect(article)
                         }}
                       >
-                        {article.title}
+                        <span className="article-title-wrapper">
+                          <span className="article-title">{article.title}</span>
+                        </span>
                       </li>
                     ))}
                   </ul>
