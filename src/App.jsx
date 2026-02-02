@@ -27,26 +27,14 @@ function App() {
   const [downloadFile,setDownloadFile] = useState(null)
   const [previousArticle,setPreviousArticle] = useState(null)
 
-  useEffect(() => {
-    loadArticle().then(data => {
-      setArticles(data)
-      setSelectedArticle(data[0])
-    })
-  }, [])
 
-useEffect(() => {
-  // Only set index if no article is selected or section changed manually
-  if (selectedArticle?.section === currentSection) return
-  
-  const indexArticle = articles.find(
-    article => article.section === currentSection && article.title === 'index'
-  )
+  const clearDownload = useCallback(() => {
+  setDownloadFile(null)
+  setPreviousArticle(null)
+}, [])
 
-  if (indexArticle) {
-    setSelectedArticle(indexArticle)
-    setSelectedCategory(null)
-  }
-}, [currentSection, articles])
+
+
 
 
 
@@ -70,8 +58,9 @@ const handleArticleSelect = useCallback((article) => {
   setSelectedCategory(null)
   setSelectedArticle(article)
   setCurrentSection(article.section)
+  clearDownload()              // Use helper
   search.setQuery('')
-}, [search])
+}, [search, clearDownload])
 
   const handleDownloadClick = (filePath) => {
     setPreviousArticle(selectedArticle)
@@ -83,6 +72,47 @@ const handleArticleSelect = useCallback((article) => {
     setDownloadFile(null)
     setPreviousArticle(null)
   }
+
+  
+  useEffect(() => {
+    loadArticle().then(data => {
+      setArticles(data)
+      setSelectedArticle(data[0])
+    })
+  }, [])
+
+useEffect(() => {
+  // Only set index if no article is selected or section changed manually
+  if (selectedArticle?.section === currentSection) return
+  
+  const indexArticle = articles.find(
+    article => article.section === currentSection && article.title === 'index'
+  )
+
+  if (indexArticle) {
+    setSelectedArticle(indexArticle)
+    setSelectedCategory(null)
+  }
+}, [currentSection, articles])
+
+// Add this useEffect in your App.js
+useEffect(() => {
+  // Clear download page when section changes
+  setDownloadFile(null)
+  setPreviousArticle(null)
+}, [currentSection])
+
+
+useEffect(() => {
+  clearDownload()
+}, [currentSection, clearDownload])
+
+// Clear download when searching
+useEffect(() => {
+  if (search.query) {
+    clearDownload()
+  }
+}, [search.query, clearDownload])
 
 
   return (

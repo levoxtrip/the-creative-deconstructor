@@ -69,8 +69,8 @@ const buildFragmentShader = (userCode) => {
     if (!isVisible || isInitialized || !containerRef.current) return
 
     const container = containerRef.current
-    const width = 400
-    const height = 400
+    const width = 600
+    const height = 600
 
     // Scene & Camera
     const scene = new THREE.Scene()

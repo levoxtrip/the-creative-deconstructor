@@ -23,17 +23,23 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
   // Keep refs updated
   useEffect(() => {
     isHomeActiveRef.current = isHomeActive;
-    
+
     if (!isHomeActive) {
       if (labelRef.current) {
         labelRef.current.style.opacity = "0";
       }
       document.body.style.cursor = "default";
       if (hoveredTileRef.current) {
-        hoveredTileRef.current.material.opacity = hoveredTileRef.current.userData.baseOpacity;
+        hoveredTileRef.current.material.opacity =
+          hoveredTileRef.current.userData.baseOpacity;
         hoveredTileRef.current.userData.isHovered = false;
         hoveredTileRef.current = null;
       }
+    }
+
+    // Enable/disable controls based on isHomeActive
+    if (controlsRef.current) {
+      controlsRef.current.enabled = isHomeActive;
     }
   }, [isHomeActive]);
 
@@ -41,7 +47,7 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     onArticleSelectRef.current = onArticleSelect;
   }, [onArticleSelect]);
 
-  // Initialize scene
+  // Initialize scene and animation loop
   useEffect(() => {
     if (!canvasRef.current || !articles?.length) return;
 
@@ -81,6 +87,7 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     controls.enableZoom = true;
     controls.minDistance = 5;
     controls.maxDistance = 100;
+    controls.enabled = isHomeActiveRef.current;
     controlsRef.current = controls;
 
     // Create label element
@@ -109,7 +116,7 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     const gridSize = 10;
 
     // Filter out index files and shuffle
-    const validArticles = articles.filter(a => a.title !== 'index');
+    const validArticles = articles.filter((a) => a.title !== "index");
     const shuffledArticles = [...validArticles].sort(() => Math.random() - 0.5);
 
     // Create layers
@@ -122,9 +129,13 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
           const y = (gy - gridSize / 2 + 0.5) * tileSize;
 
           const tileIndex = layer * gridSize * gridSize + gx * gridSize + gy;
-          const article = shuffledArticles[tileIndex % shuffledArticles.length];
+          const article =
+            shuffledArticles[tileIndex % shuffledArticles.length];
 
-          const geometry = new THREE.PlaneGeometry(tileSize * 0.95, tileSize * 0.95);
+          const geometry = new THREE.PlaneGeometry(
+            tileSize * 0.95,
+            tileSize * 0.95
+          );
 
           const hue = Math.random();
           const material = new THREE.MeshBasicMaterial({
@@ -140,7 +151,7 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
           tile.userData = {
             article,
             baseOpacity: 0.05,
-            hoverOpacity: 0.85,
+            hoverOpacity: 1.00,
             hue,
             isHovered: false,
           };
@@ -186,7 +197,9 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
       if (isDraggingRef.current) return;
 
       raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
-      const intersects = raycasterRef.current.intersectObjects(tilesRef.current);
+      const intersects = raycasterRef.current.intersectObjects(
+        tilesRef.current
+      );
 
       if (intersects.length > 0) {
         const tile = intersects[0].object;
@@ -205,65 +218,39 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
     };
 
     // Store handlers for cleanup
-    eventHandlersRef.current = { onMouseDown, onMouseMove, onClick, handleResize };
+    eventHandlersRef.current = {
+      onMouseDown,
+      onMouseMove,
+      onClick,
+      handleResize,
+    };
 
     window.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("click", onClick);
     window.addEventListener("resize", handleResize);
 
-    // Initial render
-    renderer.render(scene, camera);
+    // Animation loop
+    const animate = () => {
+      frameRef.current = requestAnimationFrame(animate);
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("click", onClick);
-      window.removeEventListener("mousedown", onMouseDown);
-      
-      if (labelRef.current && document.body.contains(labelRef.current)) {
-        document.body.removeChild(labelRef.current);
-        labelRef.current = null;
-      }
-      
-      tilesRef.current.forEach(tile => {
-        tile.geometry.dispose();
-        tile.material.dispose();
-      });
-      tilesRef.current = [];
-      
-      controls.dispose();
-      renderer.dispose();
-      
-      sceneRef.current = null;
-      cameraRef.current = null;
-      controlsRef.current = null;
-      rendererRef.current = null;
-    };
-  }, [articles]);
+      // Always update controls (handles damping even when not actively dragging)
+      controls.update();
 
-  // Animation loop
-  useEffect(() => {
-    const renderer = rendererRef.current;
-    const camera = cameraRef.current;
-    const controls = controlsRef.current;
-    const scene = sceneRef.current;
-
-    if (!renderer || !camera || !controls || !scene) return;
-
-    let animationId = null;
-
-    if (isHomeActive) {
-      const animate = () => {
-        animationId = requestAnimationFrame(animate);
-        controls.update();
-
+      // Raycaster hover logic (only when home is active)
+      if (isHomeActiveRef.current) {
         raycasterRef.current.setFromCamera(mouseRef.current, camera);
-        const intersects = raycasterRef.current.intersectObjects(tilesRef.current);
+        const intersects = raycasterRef.current.intersectObjects(
+          tilesRef.current
+        );
 
         // Reset previous hover
-        if (hoveredTileRef.current && hoveredTileRef.current !== intersects[0]?.object) {
-          hoveredTileRef.current.material.opacity = hoveredTileRef.current.userData.baseOpacity;
+        if (
+          hoveredTileRef.current &&
+          hoveredTileRef.current !== intersects[0]?.object
+        ) {
+          hoveredTileRef.current.material.opacity =
+            hoveredTileRef.current.userData.baseOpacity;
           hoveredTileRef.current.userData.isHovered = false;
           hoveredTileRef.current = null;
           if (labelRef.current) {
@@ -282,28 +269,52 @@ const WelcomeCanvas = ({ isHomeActive, articles, onArticleSelect }) => {
 
             if (tile.userData.article && labelRef.current) {
               const article = tile.userData.article;
-const section = article.section.charAt(0).toUpperCase() + article.section.slice(1);
-labelRef.current.textContent = `${section} → ${article.category} → ${article.title}`;
+              const section =
+                article.section.charAt(0).toUpperCase() +
+                article.section.slice(1);
+              labelRef.current.textContent = `${section} → ${article.category} → ${article.title}`;
               labelRef.current.style.opacity = "1";
             }
             document.body.style.cursor = "pointer";
           }
         }
+      }
 
-        renderer.render(scene, camera);
-      };
-      animate();
-      controls.enabled = true;
-    } else {
-      controls.enabled = false;
-    }
+      renderer.render(scene, camera);
+    };
+    animate();
 
     return () => {
-      if (animationId) {
-        cancelAnimationFrame(animationId);
+      // Cancel animation frame
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
       }
+
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("click", onClick);
+      window.removeEventListener("mousedown", onMouseDown);
+
+      if (labelRef.current && document.body.contains(labelRef.current)) {
+        document.body.removeChild(labelRef.current);
+        labelRef.current = null;
+      }
+
+      tilesRef.current.forEach((tile) => {
+        tile.geometry.dispose();
+        tile.material.dispose();
+      });
+      tilesRef.current = [];
+
+      controls.dispose();
+      renderer.dispose();
+
+      sceneRef.current = null;
+      cameraRef.current = null;
+      controlsRef.current = null;
+      rendererRef.current = null;
     };
-  }, [isHomeActive]);
+  }, [articles]);
 
   return (
     <div className={`welcome-canvas ${isHomeActive ? "" : "blurred"}`}>
