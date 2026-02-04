@@ -15,6 +15,9 @@ Point List - index, point position, normal attributes, color
 Vertex List - index, prim:vindex (which vertex make up the primitive), pindex(to cross reference to point list)
 - Primitive List - index, type of primitive, vertices(List of points that make up the vertex; numbers are the index of the point in point list)
 
+
+In the viewer of the POP nodes we can see what attributes the POP has/we can change.
+
 ### Attributes
 Attributes are data attached to points/vertices/primitives.
 Essential attributes are:
@@ -43,6 +46,10 @@ POPs run as *compute shaders* on the GPU what makes them memory efficient and al
 
 If a POP doesn't modify an attribute, it references the upstream data. 
 POPs use references unchanged data, and only make "copies" when something actually gets modified. In the node viewer—attributes marked with (r) are references, not copies.
+
+POPs create chain of data we can work with. You can add an in initial attribute for the initial position and a life attribute and when life is bigger than max life set position to init position.
+if life > lifemax do reset attribute from 0 to 1
+To add attribute with random value you can use a random pop
 
 ### Primitive Types - How points connect to form shapes
 POPs have five primitive types:
@@ -77,8 +84,11 @@ Closed line strips make loops but don't fill to a surface. They are like drawing
 
 
 ### Generators and Filters
+We need point data generator to create basic point positions source.
+
+
 POPs have two categories:
-*Generators*  create new geometry:
+*Generators*  create import new geometry/3D data:
 - CirclePOP
 - PointGeneratorPOP
 - SpherePOP
@@ -91,18 +101,35 @@ POPs have two categories:
 - NoisePOP
 - NormalizePOP
 
-## Math POP - Swiss Army Knife
-The `MathPOP` lets you manipulate any attribute with arithmetic and functions. It takes an input attribute, applies mathematical operations and outputs the result to the same or to a differnt attribute.
 
+To create special attributes you can use a POP operator and then set output attribute scope to for example color
+
+
+
+
+
+
+## Math POP - Swiss Army Knife
+The `MathPOP` lets you manipulate any attribute with arithmetic and functions. It takes an input attribute, applies mathematical operations and outputs the result to the same or to a different attribute.
+`Input Attribute -> Operation -> Output Attribute`.
+
+Common operations that we can compute with the `MathPOP` are:
+```
+Add   Adds a value    Offset positions
+Multiply  Scales value  Scale geometry, fade colors
+Pow Raises to Power   Exponential falloffs
+Fit   Remaps range    Normalize values to 0-1
+Sin 
+```
 ## Parameter Size
 Some of the POP nodes have the parameter `Parameter Size`. This allows to define if you want one values to affect all components equally or if you want separate controls for each component.
 
 On top of just manipulating the existing attributes with the operators you also can use the modification and create a new attribute with it. The `Output Attribute field` allows you to create new attributes that have the result of the operation assigned.
 
 ## TransformPOP
-`TransformPOP` allows to apply transformations to the data.
+`TransformPOP` allows to apply transformations to the data like rotation, scaling or transformations.
 
-To visualise attributes and their behavior we can use `POP Viewer` from the pallette.
+To visualize attributes and their behavior we can use `POP Viewer` from the pallette.
 
 The points data allows us to work with particle systems, polygons any 3D geometrical shape, point clouds, polygons, lines etc as well as data points.
 
@@ -114,23 +141,38 @@ The `index` lets us reference specific elements from the list.
 ## Attribute class
 
 `Attribute Class` parameter defines to which *attribute class* the changes get applied
-
+If you apply it to primitive instead of point the whole primitive has the same value.
 
 
 ## Primitive Types
-Point - single point
+Point - single point - no connectivity just points
+
+Positions on the vertex of the operator shapes.
 
 Line - two points
+Connectivity lines
+combines point pairs
 
-Line strips - one or more points - this allows to have open and closed line strips; closed linestrip- multiple primitives are connected in one point
+Line strips - one or more points - Connectivity Linestrip - this allows to have open and closed line strips; closed linestrip- multiple primitives are connected in one point/ last point same as first.
 
-Triangle - three points
 
-Quads - four points
+Triangle - three points - three vertices for primitive
+
+
+Quads - four points - requires 4 vertices per primitive.
+
 
 We don't need primive assigned to our POP data. If we use the info just for instancing we don'T need the primitive type. But to render geometry in a scene you need primitive.
 
 
+## ConvertPOP
+Allows to convert triangle into line strips.
+
+
+## Instancing POP
+When you use POP info for instancing you don't need primitive information, but if you want to render the info to the scene you need primitive assigned.
+Use POP as the shape that gets instanced.
+Use pop shape to create the instancing data.
 
 ## Accumulative Movement
 
@@ -143,7 +185,7 @@ The available POP operators can be seperated in *Generators* and *Filter*:
 
 
 ## Point Generator POP
-The `PointGeneratorPOP` allows to select a shape where we want to distribute points on. We can decide to distribute them on the surface or the volume of the shape. With `Random` flag off points get distributed evenly spaced.
+The `PointGeneratorPOP` allows to select a shape where we want to distribute points. We can decide to distribute them on the surface or the volume of the shape. With `Random` flag off points get distributed evenly spaced.
 
 ## Normalize POP
 To normalize attributes of POP. Also allows to assign lookup curves which generates intresting effects.
@@ -154,9 +196,13 @@ The `SprinklePOP` allows to sprinkle points over a given geometry.
 ## TrailPOP
 Generates a trail effect when points are moving around in space. It generates linestrips
 
+## ProximityPOP
+allows to connect points depending on their distance to each other. plexus effect.
 
 
-
+## NoisePOP
+Adds nosie attribute to the data.
+Allows to choose where we want to apply some noise. 
 
 
 
@@ -181,3 +227,45 @@ output attribute Scope Color.rgb
 `LookupTextPOP` assign color top.
 
 ## How to move point?
+
+
+# LookupTextPOP
+Allows you to assign a texture to manipulate attributes of the pop.
+For example we can use a texture to set the size or color attributes of our points.
+The TOP has to have the resolution of amount of points/particles.
+Use for example Top with width = number points and height =1
+
+![Assign Color To Points From TOP](/img/TD/AssignColorToPointsFromTOP.png)
+You need to set a `LookupIndexAttribute U` to apply the values their dedicated indexes.
+
+# ParticlePOP
+Generates number of points over time with different attributes.
+
+With `Init` you can initialize the particle system or reset it to initalize initial state.
+On `Start` we start the Particle system behavior.
+
+The `ParticlePOP` acts similar to `FeedbackPOP`, you have to drag a null to its `Target Particle Update POP` field as teh feed that updates the particle state. Everything you put inside the feedback loop has an effect on the attributes.
+
+## Create Life in Particle System
+To create life attribute in particle system after particlePOP use `MathMix` and divide particle age by `PartLifeSpan` as the result you set `Life`.
+
+## Add Noise Movement to Particle System
+We connect the `ParticlePOP` with a `NoisePOP` to add some noise movement to each point.
+
+## Add Force to Particle System
+We can use a `ForceRadialPOP` to add some forces to the particle of your system.
+
+## Create a Push forward effect
+Add a transform and scale to 1.1
+
+## Add Rotation To particle system
+ParticlePOP attributes new attributes rot - mathmix Rot + P
+
+To get amount of points of a POP
+op('pointgen1').numPoints()
+
+
+
+
+
+How to move along normals

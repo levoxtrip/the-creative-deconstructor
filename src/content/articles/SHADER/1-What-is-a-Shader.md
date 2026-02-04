@@ -2,9 +2,9 @@
 ## The core problem
 In computer graphics we have to process a huge amount of pixels. If you have a 1920x1080 display, it has 2.073.600 pixels. Each frame, every pixel needs a color. If you have 60 frames per seconds that is 124 million pixel calculations per second.
 
-The CPU unit in your computer processes every task one at a time, with multiple cpu cores multiple at time. Because this process after process approach would be way to slow, we are using GPUs to calculate the pixel colors for our screens. GPU's have thousands of small processors that do their calculations all simultanously.
+The CPU unit in your computer processes every task one at a time, with multiple cpu cores multiple at time. Because this process after process approach would be way to slow, we are using GPUs to calculate the pixel colors for our screens. GPU's have thousands of small processors that do their calculations all simultaneously.
 
-CPU: Caluclate pixel 1, then calculate pixel 2, then calculate pixel 3
+CPU: Calculate pixel 1, then calculate pixel 2, then calculate pixel 3
 GPU: Calculate pixel 1,2,3,4 ... at the same time.
 
 A *shader* is a program that runs on each of the processors of the GPU. 
@@ -14,7 +14,7 @@ In normal programming we write our program and it will execute you code in seque
 You don't write that loops through all your pixels. You write code that describes what one pixel should do and the GPU runs that code on every pixel simultaneously.
 
 ```
-//You dont write !!!
+//You don't write !!!
 for each pixel on screen:
 	calculate color
 
@@ -43,9 +43,9 @@ Worth looking at is the question: *what is position?*
 In a typical shader setup you receive pixel coordinates like(427,489). Because the raw pixel data depends on the screen resolution it's not optimal to work with it. What we want to do is to *normalize* it so the pixel coordinates get converted to 0 -> 1:
 ```
 position.x = pixel.x / screen_width // 0.0 on left, 1.0 on the right
-positiion.y = pixel.y / screen_height // 0.0 on the bottom, 1.0 on the top
+position.y = pixel.y / screen_height // 0.0 on the bottom, 1.0 on the top
 ```
-No your shader works identically no matter the screen size. (0.5,0.5) position always means "center of the screen." These normalized coordinates are called *UV coordiantes* where *UV* are just contentions like x/y but for texture space.
+No your shader works identically no matter the screen size. (0.5,0.5) position always means "center of the screen." These normalized coordinates are called *UV coordinates* where *UV* are just contentions like x/y but for texture space.
 
 ## First Fragment Shader
 We will use GLSL in the examples here. 
@@ -61,7 +61,7 @@ void main(){
 ```
 `void main()` - every shader has a main function. This runs once per pixel, simultaneously across all pixels.
 `gl_FragColor` - build-in variable - whatever you assign to it becomes the pixels final color.
-`vec4(1.0,0.0,0.0,1.0)` - 4-component vecotr representing color:Red, Green, Blue, Alpha with values ranging from 0.0 to 1.0
+`vec4(1.0,0.0,0.0,1.0)` - 4-component vector representing color:Red, Green, Blue, Alpha with values ranging from 0.0 to 1.0
 
 ### Getting Position: The UV Coordinate
 In the example above every pixel outputs the same color. To make `color = function(position)` work we need the position of the pixel. Different environments provide this differently - here a standard GLSL approach
@@ -166,7 +166,7 @@ vec4 color = vec4(rg,ba);
 ```
 
 ### Vector Math
-Vectors matter in shader programming because we can apply math operations to all componenets simultaneously.
+Vectors matter in shader programming because we can apply math operations to all components simultaneously.
 ```
 vec3 a = vec3(1.0,2.0,3.0);
 vec3 b = vec3(0.5,0.5,0.5);
@@ -187,7 +187,7 @@ sin(uv) // vec2(sin(0.25),sin(0.75));
 ```
 
 GLSL as a shader language is strict about types and how the can be combined. 
-You can't multiply a `vec3` with a `vec2` for example. But `float` makes an execption because it acts as *scalar* to the vector.
+You can't multiply a `vec3` with a `vec2` for example. But `float` makes an exception because it acts as *scalar* to the vector.
 
 
 ## Uniforms and Time
@@ -199,10 +199,10 @@ uniform float u_time;//seconds since start
 uniform vec2 u_mouse;// mouse position
 uniform sampled2D u_texture;// an image
 ```
-`u_`prefix is a convention to make clear that it is a uniform and to distinguis from local variables; there are also other conventions with `i`
+`u_`prefix is a convention to make clear that it is a uniform and to distinguish from local variables; there are also other conventions with `i`
 
 ### Time
-`u_time` is a number that continously increases over the lifetime of your shader. It starts at 0.0 and counts up in seconds.
+`u_time` is a number that continuously increases over the lifetime of your shader. It starts at 0.0 and counts up in seconds.
 
 In combination with mathematical functions we can create powerful animations
 ```
@@ -237,7 +237,7 @@ void main(){
 	gl_FragColor = vec4(vec3(bright),1.0);
 }
 ```
-`*0.5 + 0.5` pattern remaps -1 -> 1 range to 0->1 range and is frequenctly used in shader.
+`*0.5 + 0.5` pattern remaps -1 -> 1 range to 0->1 range and is frequently used in shader.
 
 #### Controlling Speed
 
@@ -331,7 +331,7 @@ Every pixel runs the same code. In the example above every pixel outputs the col
 ```
 //This code runs million times simultaneously
 //Each instance has different fragCoord value
-// Each instnce calculates its own color
+// Each instance calculates its own color
 
 void mainImage(out vec4 fragColor,in vec2 fragCoord){
 	//I am ONE pixel

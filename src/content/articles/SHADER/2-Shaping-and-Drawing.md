@@ -268,7 +268,7 @@ abs(dist) -0.02
 // Glow: brightness falls off with distance
 1.0 / (1.0 + dist * 10.0)
 ```
-We have the same distance calculattion but completely different looks. The SDF defines the shape and the rendering happens in second decision. 
+We have the same distance calculation but completely different looks. The SDF defines the shape/distance data as raw information and the rendering happens in a second decision in a later step. To be more flexible keep these steps separated. 
 
 ### Circle
 A circle is defined as all points in the exact distance R from it's center point.
@@ -541,4 +541,3 @@ Third we measure distance from ourselves to that closest point.
 
 This pattern repeats throughout SDFs. Whenever you need the distance to a bounded shape, you project onto its surface, constrain to its boundaries and then measure it.
 
-## Patterns and Tiling
