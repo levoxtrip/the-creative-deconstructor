@@ -204,6 +204,12 @@ allows to connect points depending on their distance to each other. plexus effec
 Adds nosie attribute to the data.
 Allows to choose where we want to apply some noise. 
 
+NoisePOP gives a noise value every fram.e
+
+In a feedbackpop loop it can displace the position every frame by a value. 
+
+
+
 
 
 ## Create Own Particle System behavior
@@ -246,6 +252,9 @@ On `Start` we start the Particle system behavior.
 
 The `ParticlePOP` acts similar to `FeedbackPOP`, you have to drag a null to its `Target Particle Update POP` field as teh feed that updates the particle state. Everything you put inside the feedback loop has an effect on the attributes.
 
+
+
+
 ## Create Life in Particle System
 To create life attribute in particle system after particlePOP use `MathMix` and divide particle age by `PartLifeSpan` as the result you set `Life`.
 
@@ -265,7 +274,75 @@ To get amount of points of a POP
 op('pointgen1').numPoints()
 
 
+# FeedbackPOP
+Feedback POP works similar to nromal feedback system. We put some data in, manipulate it and feed it back in and it is incrementing changes step by step.
 
 
+# How to increment an attribute over time
+Inside a feedbvack loop we can use a mathmixpop, create a life inc uniform with 0.01, then in the combine tab we add a+b and add the life inc to the life. 
 
 How to move along normals
+
+
+## Generating Points
+`PointGeneratorPOP` allows us number of shapes as the source and distribute a number of points across the surface or volume of the shape.
+
+
+## Attributes
+Attributes are numbers(single number,vectors) that are assigned to a point, vertex or primitive of geometry.
+
+*Point* Attribute is `float3` 
+*Color* Attribute is `float4`
+
+
+## MathMixPOP
+Allows to create new attributes or combine the input attributes to apply calculations between them. 
+
+## TopToPOP
+A `TopToPop` creates for each pixel in a TOP a point in the POP.
+
+
+## Loading 3D Models
+When you load 3D models from the internet it can make sense to first normalize it with `NormalizePOP`. Also set `aspect correct` so keep the proper aspect ratio. With a `TransformPOP` you then can center the POP data. In the `align` tab click `Align TranslateX/Y/Z`  to `Origin`
+
+## Creating Points Inside Volume of Source Shape
+The `SprinklePOP` allows you to create points inside the volume of the input or it's surface.
+
+## FieldPOP
+`FieldPOP` adds new attribute `weight` to the points of your source data. The node allows you to et the basic shape of the field. It returns 0 or 1 if point is sinde field or not. The `Transition Range` allows to create smoother weight values and transitions. Afterwards you then can calculate in an `MaxMixPOP` how `weight` affects the point position or other data.
+
+
+### How to apply field weight to point position
+To get the direction the point should move we can multiply the weigth with the normal so it moves along its normal. We output Offsetweight as result scope. We then need to create a "strength" value in new tab because we want to define how much the point should be affected. This we multiply with the offset weight and store it back into the offset weight. At the end we add P point with the offset weight.
+In Output of the `FieldPOP` we can set delete new attrubtes to keep the passed attribute clean and don't clutter them. 
+
+
+## Create Random Value Per Point
+If you want to create a random for every instance in your POP data you can plug the POP into a `RandomPOP` and create an output attribute scope with the new random values.
+
+## AttributeCombinePOP
+`AttributeCombinePOP` allows you ccombine and add new attributes to your data.
+
+## MathCombinePOP
+With the mathcombinepop we can execute some logic for example test if our particle life already > bigger than maxlife, if true we can create a doreset/stay attribute. We tell the particle when and how to move. You also can mix different states of the sattributes.
+
+## DeletePOP
+allows you to delete some data. 
+Under `Thin` you can reduce the amount of data points.
+
+## AnalysePOP
+allows to avergage data
+so for exmaple use pattern, add noise pop and the nanalyse to get the centeroid.
+
+
+You can use POP to sort TOPS
+
+## PointCloudPOP
+allows you to input pointcloud and also rerange the attributes that are coming in with the file.
+For example colors are often 0 to 255 but td expects 0 to 1
+
+# TwistPOP
+Allows to create twist operations on the POP
+
+# BlendPOP
+Allows to blend between different points

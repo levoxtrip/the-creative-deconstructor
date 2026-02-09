@@ -403,7 +403,7 @@ float valueNoise(vec2 p) {
     vec2 u = f * f * (3.0 - 2.0 * f);
     
     // Blend between the four corners
-    return mix(mix(a, b, u.x), mix(c, d, f.x), f.y);
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
 void main(){
@@ -412,5 +412,353 @@ void main(){
 	gl_FragColor = vec4(vec3(c),1.0);
 }
 ```
+### 3D Value Noise
+The 3D value noise works similarly to the 2D value noise but just extends it by one dimension. Instead of interpolation between 4 corners of a square we interpolate between 8 corners of a cube. We start by creating a 3D hash function.
+```
+float hash3D(vec3 p){
+	return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);
+}
+```
+The only difference here i that we use vec3 for the dot product with another arbitrary number. Now we can create our 3D value noise function.
+```
+float valueNoise3D(vec3 p){
+	// Get Cell and position in cell
+	vec3 i = floor(p);
+	vec3 f = fract(p);
+	// smooth interpolation curve
+	vec3 u = f *f *(3.0-2.0*f);
+
+	// Get random values at all 8 corners of the cube
+	float c000 = hash3D(i + vec3(0, 0, 0));  // front-bottom-left
+    float c100 = hash3D(i + vec3(1, 0, 0));  // front-bottom-right
+    float c010 = hash3D(i + vec3(0, 1, 0));  // front-top-left
+    float c110 = hash3D(i + vec3(1, 1, 0));  // front-top-right
+    float c001 = hash3D(i + vec3(0, 0, 1));  // back-bottom-left
+    float c101 = hash3D(i + vec3(1, 0, 1));  // back-bottom-right
+    float c011 = hash3D(i + vec3(0, 1, 1));  // back-top-left
+    float c111 = hash3D(i + vec3(1, 1, 1));  // back-top-right
+
+	// Interpolate along x (4 pairs of corners)
+	float c00 = mix(c000,c100,u.x);
+	float c10 = mix(c010,c110,u.x);
+	float c01 = mix(c001,c101,u.x);
+	float c11 = mix(c011,c111,u.x);
+
+	//Interpolate along y ( 2 pairs of edges)
+	float c0 = mix(c00,c10,u.y);
+	float c1 = mix(c01,c11,u.y);
+
+	//Interpoalte along z
+	return mix(c0,c1,u.z);
+}
+```
+When you then add time as the third coordinate you are slicing through a 3D noise volume.
+`float n = valueNoise3D(vec3(uv*4.0,u_time));`
+
+You are basically moving a flat plane through the 3D block. The 2D slice you see changes smoothly because neighboring slices in the 3D volume are similar.
+
+```glsl
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+float hash3D(vec3 p){
+	return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);
+}
+
+float valueNoise3D(vec3 p){
+	// Get Cell and position in cell
+	vec3 i = floor(p);
+	vec3 f = fract(p);
+	// smooth interpolation curve
+	vec3 u = f *f *(3.0-2.0*f);
+
+	// Get random values at all 8 corners of the cube
+	float c000 = hash3D(i + vec3(0, 0, 0));  // front-bottom-left
+    float c100 = hash3D(i + vec3(1, 0, 0));  // front-bottom-right
+    float c010 = hash3D(i + vec3(0, 1, 0));  // front-top-left
+    float c110 = hash3D(i + vec3(1, 1, 0));  // front-top-right
+    float c001 = hash3D(i + vec3(0, 0, 1));  // back-bottom-left
+    float c101 = hash3D(i + vec3(1, 0, 1));  // back-bottom-right
+    float c011 = hash3D(i + vec3(0, 1, 1));  // back-top-left
+    float c111 = hash3D(i + vec3(1, 1, 1));  // back-top-right
+
+	// Interpolate along x (4 pairs of corners)
+	float c00 = mix(c000,c100,u.x);
+	float c10 = mix(c010,c110,u.x);
+	float c01 = mix(c001,c101,u.x);
+	float c11 = mix(c011,c111,u.x);
+
+	//Interpolate along y ( 2 pairs of edges)
+	float c0 = mix(c00,c10,u.y);
+	float c1 = mix(c01,c11,u.y);
+
+	//Interpoalte along z
+	return mix(c0,c1,u.z);
+}
+
+
+
+void main() {
+    vec2 uv = gl_FragCoord.xy/u_resolution.xy;
+    uv.x *= u_resolution.x/u_resolution.y;
+
+    vec3 color = vec3(0.);
+    float n = valueNoise3D(vec3(uv*4.0,u_time));
+    color = vec3(n);
+
+    gl_FragColor = vec4(color,1.0);
+}
+```
+
 
 ## Fractal Brownian Motion
+In natural textures like clouds, mountains or coastlines we see that they have detail at every scale. Their complexity continues on every level of magnification. With Fractal Brownian Motion(FBM) we can create this complexity. The idea of FBM is to layer multiple noises with different details
+First layer with large shapes
+Second layer with medium details
+Third layer with small details
+Forth layer with tiny details
+
+Each layer adds complexity with a smaller scale where larger scales define the overall structure and smaller scales the details.
+The FBM does this with noise functions where you add multiple octaves of noise each one with higher frequency(more details) and lower amplitude(less prominent) than the last.
+
+A layer is called an octave similar to music where each octave doubles it's frequency per octave. Similarly we double the frequency and half the amplitude.
+
+```
+float n = 0.0;
+n += valueNoise(uv*4.0)*1.0;//large features
+n += valueNoise(uv*8.0)*0.5;//medium features
+n += valueNoise(uv*16.0)*0.25;//small features
+n += valueNoise(uv*32.0)*0.125;//fine features
+n += valueNoise(uv*64.0)*0.0625;//tiny features
+```
+Because we have a repetitive pattern we can write a loop for this.
+```
+float fbm(vec2 p){
+	float value = 0.0;
+	float amplitude = 0.5;
+	float frequency = 1.0;
+	for(int i = 0; i<5;i++){
+		value += valueNoise(p*frequency)*amplitude;
+		frequency *= 2.0;//Double frequency
+		amplitude *= 0.5;//half amplitude
+	}
+
+	return value;
+}
+```
+```glsl
+float hash(vec2 p){
+	return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);
+}
+
+float valueNoise(vec2 p) {
+    vec2 i = floor(p);  // which grid cell are we in?
+    vec2 f = fract(p);  // where inside that cell?
+    
+    // Get random values at the four corners of this cell
+    float a = hash(i + vec2(0.0, 0.0));  // bottom-left corner
+    float b = hash(i + vec2(1.0, 0.0));  // bottom-right corner
+    float c = hash(i + vec2(0.0, 1.0));  // top-left corner
+    float d = hash(i + vec2(1.0, 1.0));  // top-right corner
+    
+    // Create a smooth interpolation curve
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    
+    // Blend between the four corners
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+float fbm(vec2 p){
+	float value = 0.0;
+	float amplitude = 0.5;
+	float frequency = 1.0;
+	for(int i = 0; i<5;i++){
+		value += valueNoise(p*frequency)*amplitude;
+		frequency *= 2.0;//Double frequency
+		amplitude *= 0.5;//half amplitude
+	}
+
+	return value;
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy/u_resolution.xy;
+    uv.x *= u_resolution.x/u_resolution.y;
+
+    vec3 color = vec3(0.);
+    float n = fbm(uv);
+    color = vec3(n);
+
+    gl_FragColor = vec4(color,1.0);
+}
+```
+
+Each pass adds a layer of noise that is twice as defines and half as strong as the previous one.
+With frequency and amplitude we have two parameter that we can use the change to create different noises. For that we introduce two variable *lacunarity* and *gain* to be able to change the multiplier values of the amplitude and frequency. *Lacunarity* defines how much the frequency increases each octave and gain controls how much the amplitude decreases each octave.
+```
+frequency *= lacunarity;
+2.0	each octave twice as detailed
+3.0 each octave three times as detailed
+
+higher lacunarity -> bigger gaps between detail levels
+lower lacunarity -> more overlapping blended shapes
+
+amplitude *= gain;
+0.5	each octave half as strong
+0.3 each octave fades quickly
+
+higher gain - small details remain
+lower gain - small details fade away
+```
+This leads us to a more flexible function:
+```
+float fbm(vec2 p, int octaves, float lacunarity, float gain){
+	float value = 0.0;
+	float frequency = 1.0;
+	float amplitude = 0.5;
+	float maxValue = 0.0;
+	for(int i = 0;i<8;i++){
+		if (i < octaves) {
+		value = valueNoise(p*frequency)*amplitude;
+		maxValue += ampltiude;
+		frequency *=lacunarity;
+		amplitude *= gain;
+		}
+	}
+
+	return value / maxValue;
+}
+```
+We add `maxValue` to normalize `value` to a 0 to 1.0 range.
+
+The FBM looks natural because also nature exhibits self similarity at different scales. This is called *fractal structures* pattern that repeat at multiple scales. FBM mimics this by adding it's details at multiple scales. IF you want to animate your FBM you can add time as a third dimension.
+
+```
+float hash3D(vec3 p){
+	return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);
+}
+
+float valueNoise3D(vec3 p){
+	// Get Cell and position in cell
+	vec3 i = floor(p);
+	vec3 f = fract(p);
+	// smooth interpolation curve
+	vec3 u = f *f *(3.0-2.0*f);
+
+	// Get random values at all 8 corners of the cube
+	float c000 = hash3D(i + vec3(0, 0, 0));  // front-bottom-left
+    float c100 = hash3D(i + vec3(1, 0, 0));  // front-bottom-right
+    float c010 = hash3D(i + vec3(0, 1, 0));  // front-top-left
+    float c110 = hash3D(i + vec3(1, 1, 0));  // front-top-right
+    float c001 = hash3D(i + vec3(0, 0, 1));  // back-bottom-left
+    float c101 = hash3D(i + vec3(1, 0, 1));  // back-bottom-right
+    float c011 = hash3D(i + vec3(0, 1, 1));  // back-top-left
+    float c111 = hash3D(i + vec3(1, 1, 1));  // back-top-right
+
+	// Interpolate along x (4 pairs of corners)
+	float c00 = mix(c000,c100,u.x);
+	float c10 = mix(c010,c110,u.x);
+	float c01 = mix(c001,c101,u.x);
+	float c11 = mix(c011,c111,u.x);
+
+	//Interpolate along y ( 2 pairs of edges)
+	float c0 = mix(c00,c10,u.y);
+	float c1 = mix(c01,c11,u.y);
+
+	//Interpoalte along z
+	return mix(c0,c1,u.z);
+}
+
+float fbm3D(vec3 p, int octaves, float lacunarity, float gain){
+	float value = 0.0;
+	float amplitude = 0.5;
+	float frequency = 1.0;
+
+	for (int i = 0; i < 8; i++) {
+    if (i < octaves) {
+        value += valueNoise3D(p * frequency) * amplitude;
+        frequency *= lacunarity;
+        amplitude *= gain;
+    }
+}
+
+	return value;
+}
+
+void main(){
+	vec2 uv = gl_FragCoord.xy/u_resolution;
+	uv.x *= u_resolution.x/u_resolution.y;
+    
+	float n = fbm3D(vec3(uv*4.0,u_time),4,2.0,0.35);
+
+    
+	vec3 color = vec3(n);
+	gl_FragColor = vec4(color,1.0);
+}
+```
+```glsl
+float hash3D(vec3 p){
+	return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);
+}
+
+float valueNoise3D(vec3 p){
+	// Get Cell and position in cell
+	vec3 i = floor(p);
+	vec3 f = fract(p);
+	// smooth interpolation curve
+	vec3 u = f *f *(3.0-2.0*f);
+
+	// Get random values at all 8 corners of the cube
+	float c000 = hash3D(i + vec3(0, 0, 0));  // front-bottom-left
+    float c100 = hash3D(i + vec3(1, 0, 0));  // front-bottom-right
+    float c010 = hash3D(i + vec3(0, 1, 0));  // front-top-left
+    float c110 = hash3D(i + vec3(1, 1, 0));  // front-top-right
+    float c001 = hash3D(i + vec3(0, 0, 1));  // back-bottom-left
+    float c101 = hash3D(i + vec3(1, 0, 1));  // back-bottom-right
+    float c011 = hash3D(i + vec3(0, 1, 1));  // back-top-left
+    float c111 = hash3D(i + vec3(1, 1, 1));  // back-top-right
+
+	// Interpolate along x (4 pairs of corners)
+	float c00 = mix(c000,c100,u.x);
+	float c10 = mix(c010,c110,u.x);
+	float c01 = mix(c001,c101,u.x);
+	float c11 = mix(c011,c111,u.x);
+
+	//Interpolate along y ( 2 pairs of edges)
+	float c0 = mix(c00,c10,u.y);
+	float c1 = mix(c01,c11,u.y);
+
+	//Interpoalte along z
+	return mix(c0,c1,u.z);
+}
+
+float fbm3D(vec3 p, int octaves, float lacunarity, float gain){
+	float value = 0.0;
+	float amplitude = 0.5;
+	float frequency = 1.0;
+
+	for (int i = 0; i < 8; i++) {
+    if (i < octaves) {
+        value += valueNoise3D(p * frequency) * amplitude;
+        frequency *= lacunarity;
+        amplitude *= gain;
+    }
+}
+
+	return value;
+}
+
+void main(){
+	vec2 uv = gl_FragCoord.xy/u_resolution;
+	uv.x *= u_resolution.x/u_resolution.y;
+    
+	float n = fbm3D(vec3(uv*4.0,u_time),4,2.0,0.35);
+
+    
+	vec3 color = vec3(n);
+	gl_FragColor = vec4(color,1.0);
+}
+```
+
+# Textures and Sampling
