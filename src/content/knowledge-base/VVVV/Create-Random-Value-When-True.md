@@ -5,7 +5,7 @@ tags:
   - VVVV
   - VVVV/Spread
 ---
-![alt text](/files/vvvv/Create-Random-Value-When-True.md)
+
 # Create Random Value when true
 We can use a `LFO` `On New Cycle` Out put and plug it in to the `enabled` of the `Random` node to get a random value every time the lfo cycle ends.  
 It is important to first set/create the *data type* you want and then connect it to the *generic* random note.

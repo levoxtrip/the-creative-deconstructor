@@ -18,7 +18,7 @@ Because the structure is not *mutable* a `Cache` region detects changes in the s
 # AppState Class
 So the idea is that we create an *AppState* `Class` where we store the different snapshots of  our app.
 
-![Model Controller View Img](/img/VVVV/ModelControllerView.png)
+![Model Controller View Img](/img/vvvv/ModelControllerView.png)
 
 In the `Controller` we then *set the current snapshot.* So we have a combination of an unmutable type of the snapshot and the mutable type of the class. 
 This approach makes sense when you want to be able to undo changes, or jump between fixed snapshots of your app states.

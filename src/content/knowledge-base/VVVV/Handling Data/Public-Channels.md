@@ -4,11 +4,11 @@ Public Channels are named parameters that are available from everywhere in your 
 ## Creating Public Channels
 To create a public channel use the `PublicChannel` node and git it a path/name and a type. When you want to group channels you can use `/` like `level1/Background` and `level1/amountEnemies`.
 
-![Public Channels Creation Img](/img/VVVV/PublicChannelCreate.png)
+![Public Channels Creation Img](/img/vvvv/PublicChannelCreate.png)
 
 Now it's value can be changed from the *ChannelBrowser* or another `PublicChannel` node with the same path.
 
-![Public Channels Change Img](/img/VVVV/PublicChannelChange.png)
+![Public Channels Change Img](/img/vvvv/PublicChannelChange.png)
 
 ## Find Public Channel in Patch
 Especially in bigger projects which multiple channels the *ChannelBrowser* allows you to jump to the location in your patch where the channels are used. You can right click the channel in the browser and go to *jump to node in*.
@@ -22,7 +22,7 @@ To remove a public channel, you first have to delete the `PublicChannel` nodes i
 ## Presets
 You can store presets via the channel browser *preset* column.
 To store presets via nodes:
-![Store And Trigger Preset Img](/img/VVVV/StoreAndTriggerPreset.png)
+![Store And Trigger Preset Img](/img/vvvv/StoreAndTriggerPreset.png)
 You can use the preset with the `TriggerPreset` node.
 
 ## Binding

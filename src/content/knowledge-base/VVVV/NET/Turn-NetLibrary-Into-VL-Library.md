@@ -6,16 +6,16 @@ We start by creating a folder with the final name of the library `VL.LibraryName
 
 Next step is to install the .Net Library via nuget.org. If you can't find a nuget package you have to download the necesarry *dll* file and reference it manually. When installing nuget via `nuget install ...` check if the nuget is a stable release or pre release.
 
-After the installation in VVVV you can reference the library in your .net nugets dependency by going to *Dependencies/.NetNugets/* and right click on the gray box right to the name of your library
-![Dependencies Img](/img/VVVV/VLLib2.png)
+After the installation in vvvv you can reference the library in your .net nugets dependency by going to *Dependencies/.NetNugets/* and right click on the gray box right to the name of your library
+![Dependencies Img](/img/vvvv/VLLib2.png)
 
 
 You the can see it in the node browser
-![Nodebrowser Img](/img/VVVV/VLLib3.png)
+![Nodebrowser Img](/img/vvvv/VLLib3.png)
 
 Always be aware of possible overload functions - libraries often contain some.
 
-When you unwrap libraries in VVVV use `Cache` Regions to make your library performant and only execute certain functionality when necesarry.
+When you unwrap libraries in vvvv use `Cache` Regions to make your library performant and only execute certain functionality when necesarry.
 
 You want to wrap each functionality that you need for your VL library into a node which has a lifetime and wherever something changes in our parameters, we want to call the function again. So you want to wrap the .NET function into a `Process` node which contains `Cache` regions that based on inputs calculated something and holds on the result.
 
@@ -47,7 +47,7 @@ For functionality that you want to hide for the node browser you can create a `.
 
 When an action is too heavy we can use a `Cache` region and inside use an `Async Task`. This only gets exxecuted when inputs to `Cache` change.
 
-![Nodebrowser Img](/img/VVVV/CacheAsyncExecution.png)
+![Nodebrowser Img](/img/vvvv/CacheAsyncExecution.png)
 
 
 ## Forward

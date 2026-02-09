@@ -2,7 +2,7 @@
 
 
 
-![LightShaftScene Img](/img/VVVV/LightShaftScene.png)
+![LightShaftScene Img](/img/vvvv/LightShaftScene.png)
 
 # How To Create Volumetric Light Effect In Stride
 To create a volumetric light effect we want to generate visible rays of light. This is also called *God-Rays Effect*. After activating *VL.Stride*,
@@ -13,6 +13,6 @@ We also need a `LightShaftBoundingComponent` to set the volume in which we want 
 
 In the `SceneWindow` we have to right click, `Configure` and expose `Light Shaft` Input. There we can can connect a `LightShaft` node.
 
-![LightShaftCode Img](/img/VVVV/LightShaftCode.png)
+![LightShaftCode Img](/img/vvvv/LightShaftCode.png)
 
-[LightShaft Patch](/files/VVVV/LightShaft.vl)
+[LightShaft Patch](/files/vvvv/LightShaft.vl)

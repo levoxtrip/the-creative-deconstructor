@@ -4,7 +4,7 @@ title: Stride Orbit Camera
 ---
 
 
-![Orbit Camera Img](/img/VVVV/OrbitCameraStride.png)
+![Orbit Camera Img](/img/vvvv/OrbitCameraStride.png)
 
 # Orbit Camera in Stride
 The basic interactions we can do in a `SceneWindow` with the `OrbitCamera` are:

@@ -1,4 +1,4 @@
-![Expr Node Img](/img/VVVV/ExprNode.png)
+![Expr Node Img](/img/vvvv/ExprNode.png)
 
 # Expr Node
 The `Expr` node allows to parse a mathematical expression and returns the result. It is part of the `Vl.Addons` package.
