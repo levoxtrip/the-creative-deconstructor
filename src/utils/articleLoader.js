@@ -1,15 +1,15 @@
 export async function loadArticle(){
     const files = import.meta.glob('../content/**/*.md', {
         query: '?raw',
-        import: 'default'
+        import: 'default',
+        eager: true  // ← add this
     })
 
     const articles = []
 
     for(const path in files){
-        const rawContent = await files[path]()
+        const rawContent = files[path]  // ← no more await/function call
 
-        // Parse frontmatter to separate metadata from content
         const { metadata, content } = parseFrontmatter(rawContent)
 
         const parts = path.split('/')
@@ -26,7 +26,7 @@ export async function loadArticle(){
             section: section,
             category: category,
             categoryPath: categoryPath,
-            content: content,  // Clean content without frontmatter
+            content: content,
             path: path
         })
     }
