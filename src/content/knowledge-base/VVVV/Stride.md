@@ -15,7 +15,7 @@ Reset camera in `RenderWindow` - `R`
 Show helper in Scene - `F4`
 
 # Transformations
-For basic information about transformations [see here](/files/vvvv/Skia.md#transform).
+For basic information about transformations.
 
 ## Transform between
 The `TransformBetween` node allows to transform a shape so it is positioned between the two input positions.

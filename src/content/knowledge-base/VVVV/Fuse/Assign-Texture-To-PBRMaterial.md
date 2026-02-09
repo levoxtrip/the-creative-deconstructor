@@ -1,2 +1,2 @@
 # Assing Texture To PBR Material
-![Assing Texture To PBR Material Img](/img/VVVV/AssignTextureToPBRMaterial.png).
+![Assing Texture To PBR Material Img](/img/vvvv/AssignTextureToPBRMaterial.png).
