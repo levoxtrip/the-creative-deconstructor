@@ -1,3 +1,5 @@
+https://bytewrangler.blogspot.com/2011/10/signed-distance-fields.html
+
 # SDF
 A *SDF* tells you how far away you are from a shape at every single point.
 
