@@ -3,7 +3,7 @@ function Footer(){
         <>
         <footer>
         <div className="footer">
-        Leon Volbers 2025
+        © Leon Volbers 2026
         </div>
         </footer>
         </>
