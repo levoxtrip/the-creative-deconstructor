@@ -11,6 +11,7 @@ import Sidebar from './components/Sidebar'
 import ArticleContent from './components/ArticleContent'
 import CategoryPage from './components/CategoryPage'
 import { loadArticle } from './utils/articleLoader'
+import { articleToSlug } from './utils/articleToSlug'
 import { useSearch } from './hooks/useSearch'
 import WelcomeCanvas from './components/WelcomeCanvas'
 import '@fontsource/inter/400.css'
@@ -58,8 +59,9 @@ const handleArticleSelect = useCallback((article) => {
   setSelectedCategory(null)
   setSelectedArticle(article)
   setCurrentSection(article.section)
-  clearDownload()              // Use helper
+  clearDownload()
   search.setQuery('')
+  window.location.hash = articleToSlug(article)  // ← add this
 }, [search, clearDownload])
 
   const handleDownloadClick = (filePath) => {
@@ -75,11 +77,23 @@ const handleArticleSelect = useCallback((article) => {
 
   
   useEffect(() => {
-    loadArticle().then(data => {
-      setArticles(data)
-      setSelectedArticle(data[0])
-    })
-  }, [])
+  loadArticle().then(data => {
+    setArticles(data)
+
+    // Check if URL has a hash to restore
+    const hash = window.location.hash.slice(1) // remove #
+    if (hash) {
+      const match = data.find(a => articleToSlug(a) === decodeURIComponent(hash))
+      if (match) {
+        setSelectedArticle(match)
+        setCurrentSection(match.section)
+        return
+      }
+    }
+
+    setSelectedArticle(data[0])
+  })
+}, [])
 
 useEffect(() => {
   // Only set index if no article is selected or section changed manually
