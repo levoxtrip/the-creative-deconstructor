@@ -762,3 +762,161 @@ void main(){
 ```
 
 # Textures and Sampling
+Up to this point we were creating procedurally - with pure math we were creating patterns from geometry. When you want to work with an already existing image it is called *texture sampling* .
+In shader a texture is an image loaded into the GPU memory so it can be accessed by your shader. It is stored as a grid of colored pixel called texels(texture elements).
+The shader asks what color is this texture at this x,y location and the GPU looks up the location and returns the color. This process is called *sampling*.
+
+In GLSL you can access textures with `sampler2D` type.
+`uniform sampler2D u_texture;`
+It is passed into your shader from outside.
+
+To read a color from your texture you use the `texture()` function.
+`vec4 color = texture(u_texture,uv)`
+It expects normalized values for `uv` and it returns vec4 for the r,g,b,a values.
+(0,0) -> bottom left
+(1,1) -> top right
+
+```
+uniform vec2 u_resolution;
+uniform sampler2D u_texture;
+
+void main(){
+	vec2 uv = gl_FragCoord.xy/u_resolution;
+	vec4 color = texture(u_texture,uv);
+	gl_FragColor = color;
+}
+```
+
+What happens if the `uv` values are outside of 0-1?
+When you experiment with your texture and you scroll it, tile it or distort it your uv values can move outside of the 0-1 range. You can control what happens with different wrap modes. This is controlled by the framework where your GLSL code runs.
+*Repeat mode*
+The texture tiles infinitely when the values are outside of 0-1.  The coordinates wrap around using the fractal parts.
+`uv(1.5,2.3) -> uv(0.5,0.3)`
+Image it as texture as a wallpaper that repeats forever in all directions. Often used for tileable textures like bricks,grass or fabric.
+
+*Clamp mode*
+Coordinates are clamped to 0 to 1 range. Everything smaller than 0 becomes 0 and everything bigger than 1 becomes 1.
+``` 
+uv(1.5,2.3) -> uv(1.0,1.0)
+uv(-1.2,1.3) -> uv(0.0,1.0)
+```
+The edge pixels will stretch infinitely outwards. You use it when you want to stop your texture at it's bounds instead of repeating.
+
+*Mirror Mode*
+The texture flips at each boundary create a mirrored pattern.
+```
+uv 0->1 - normal image
+uv 1->2 - flipped mode
+uv 2->3 - normal image
+```
+It creates seamless tiling because the edges meet their own mirrored image.
+
+## Filtering
+Filtering is concerned with what is happening when you sample at a position which lies between neighboring texels. What color should the GPU return?
+
+*Nearest neighbor filtering*
+GPU finds single closest texel and returns exactly that color without any blending or interpolation. This creates a pixelated blocky look depending on how much you zoom into the texture.
+
+*Linear filtering(bilinear interpolation)*
+GPU finds four nearest texels and blends them based on how close sample point is to each point. If you 70% of the way from the texel A and 30% from texel B the result is 70% color B and 30% color A.
+You get smooth gradients between the texels.
+
+Similar to the wrap mode the filtering is setup by the framework you are working in, not the shader.
+
+## Manipulating UV
+The power of texture sampling comes from manipulating the uv coordinates before you sample it.
+*Scaling(zooming)*
+To zoom into a texture you sample a smaller portion of it.
+```
+vec2 uv = gl_FragCoord.xy/u_resolution;
+uv = uv*0.5+0.25;
+color = texture(u_texture,uv);
+```
+```
+screen(0,0) -> uv = (0.25,0.25)
+screen(1,1) -> uv = (0.75,0.75)
+```
+You only sample the center part of the texture and stretch it tot fill the screen.
+
+To zoom out you sample a larger range 
+`uv = uv*2.0;`
+
+*Tiling*
+To tile a texture you can multiply the uvs.
+`uv = uv*4.0;`
+
+Or if you want to be specific about the wrapping you can use `fract()`
+`uv = fract(uv*2.0)`
+
+*Scrolling* 
+To make a texture scroll over time you add an offset to the uvs.
+`uv = uv + vec2(u_time*0.1,0.0);` to scroll right.
+To scroll left use negative numbers for the first component of the vector2
+To scroll vertical, modify the second component of the vector 2.
+To scroll diagonally modify both horizontal and vertical.
+
+*Rotating*
+Rotatingh a texture requires rotating the uv coordinates around a rotation point.
+```
+void main(){
+	vec2 uv = gl_FragCoord.xy/u_resolution;
+	//Move origin to center
+	uv -= 0.5;
+	//Rotation
+	float angle = u_time * 0.5;
+	float cosA = cos(angle);
+	float sinB = sin(angle);
+
+	uv = vec2(uv.x *cosA - uv.y*sinA,
+			uv.x*sinA - uv.y *cosA);
+	//Move origin back to 0.0
+	uv += 0.5;
+
+	vec4 color = texture(u_texture,uv);
+	gl_FragColor = color;
+}
+```
+
+*Distortion with noise*
+You can create wavy rippling affects by offsetting the uvs with a noise.
+
+```
+vec2 noiseOffset = vec2(valueNoise(uv*8.0+u_time),valueNoise(uv*8.0+u_time+100.0));
+uv = uv + noiseOffset *0.03 // small offset
+vec4 color = texture(u_texture,uv);
+```
+Each pixel samples from a slightly different location than it normally would.
+
+## Combining textures with procedural techniques
+We can combine procedural techniques with texture sampling for example to use a procedural noise to blend two textures together.
+```
+uniform sampler2D u_texture1;
+uniform sampler2D u_texture2;
+
+//Insert fbm from before
+
+void main(){
+	vec2 uv = gl_FragCoord.xy/u_resolution;
+	vec4 tex1 = texture(u_texture1,uv);
+	vec4 tex2 = texture(u_texture2,uv);
+	float blend = fbm(uv*4.0,4,2.0,0.5);
+	vec4 finalColor = mix(tex1,tex2,blend);
+	gl_FragColor = finalColor;
+}
+```
+
+Or we can use an SDF to mask a texture.
+
+```
+uniform sampler2D u_texture;
+
+void main(){
+	vec2 uv = gl_FragCoord.xy/u_resolution;
+	vec4 texColor = texture(u_texture,uv);
+	float circle = circleSDF(uv,vec2(0.5),0.1);
+	float mask = 1.0 - smoothstep(0.0,0.2,circle);
+	vec4 finalColor = vec4(texColor.rgb + mask,1.0);
+	gl_FragColor = finalColor;
+}
+```
+
