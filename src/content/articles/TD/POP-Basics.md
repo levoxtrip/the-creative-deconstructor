@@ -81,12 +81,13 @@ You also can create new attributes in POPs by simply giving a new name to the `O
 To overwrite the values of an attribute you basically need the same attribute for the input scope and the result scope.
 
 ### Accessing Components of Attributes
-The components of an attribute can be accessed with `P(0) P(1) P(2)` or similar to GLSL swizzling `P.x P.y P.z`. `()` are used to specify components of your multi-component attributes. The POP operators try to map the amount of components of the input attribute scope to the output attribute. If both have the same amount, perfect! If input has one and output N it also works fine because it copies the single component to all the destination components, similar to a scaler.
+The components of an attribute can be accessed with `P(0) P(1) P(2)`, as a list with `P(0,1,2)` or similar to GLSL swizzling `P.x P.y P.z`. `()` are used to specify components of your multi-component attributes. The POP operators try to map the amount of components of the input attribute scope to the output attribute. If both have the same amount, perfect! If input has one and output N it also works fine because it copies the single component to all the destination components, similar to a scaler.
 If the amount of input components is not corresponding with the output components the parameter columns get disabled. If parameter size is smaller than number of components, only one parameter column is enabled and copied to all attribute components. When input parameter size is bigger than number of attribute component, the extra column gets disabled. 
 To only output certain components of the attributes you can specify them in the output scope.
 
-### Swapping Components of Attributes
+### Swizzling Components of Attributes
 You can swap the order of the components of vectors by respecifying the order in the input attribute scope. `Input Scope P(1) P(0) P(2)` Result Scope `P`. Or you can use a `MathMixPOP` with `Operation A` and set Scope `P(1) P(0) P(2)`.
+
 
 ### Combine components of different attributes
 You also can combine the components of different attributes into a new Result Scope.
@@ -106,6 +107,20 @@ Unchanged attributes don't cost extra memory. They don'T get copied or stored wh
 
 ### Show attributes
 `POPViewer` from the palette allows to visualize the attributes of your POPs.
+
+### Weights
+We can think of *weights* in the context of POPs as a factor of how much an attribute gets affected by out values.
+
+![Using Weights To Affect Attribute](/img/TD/UsingWeightsToAffectAttribute.png)
+
+
+determines how much each point is within a 3D shape.
+
+#### Weights in FieldPOP
+The `FieldPOP` generates a 0 to 1 weight value based on how much each point of our source data is within the chosen field shape. You can smoothen the transition between inside and outside with the `Transition Range` paramter.
+![Transform Based On How Much In Field Img](/img/TD/TransformBasedOnHowMuchInField.png)
+
+With the `FieldPOP` we also can output the signed distance value `Dist` which returns the distance of each points towards the surface of the shape.
 
 ## Generators
 Generator POPs create position or surface data.
@@ -177,11 +192,13 @@ You also can create arrays of attributes or even matrices up to 4x4.
 ### AttributeCombinePOP
 Is similar to the first page of `MathCombinePOP` You can decite which attributes you want to work with.
 
-### MathCombinePOP
-Is like `MathMixPOP` but it lets you gather together attributes.
+### FieldPOP
+The 
 
 ### NormalizePOP
-You can take an attribute from a source POP use a `NOrmalizePOP` to take the position data and map it to the color value for the point.
+You can use the `NormalizePOP` to rescale your position values to the range of 0-1. It also allows you to convert XYZ position into polar or cylindrical coordinates, i.e. radius or latitude/longitude expresses into 0-1 range.
+
+For example you can take an attribute from a source POP, use a `NormalizePOP` to take the position data and map it to the color value for the point.
 
 ![Use NormalizePOP To Assign Colors](/img/TD/UseNormalizePOPToAssignColors.png)
 
@@ -223,11 +240,20 @@ The `MathCombinePOP` is similar to the `MathMixPOP` but with some more options. 
 
 To keep your data clean you can delete the attributes that you don't need after the calculations in the math POPs.
 
+### MathPOP
+Allows you to remap your values.
+
+
 ### MathMixPOP
 Allows to combine multiple attributes with math functions and operations. On the `Inputs` page you can select which attribute you want to use, optionally rename them. On `Mix` tab you decide how you want the attributes combined.
 The `Uniform` page allows to create attributes with constant values.
 
 If you input attributes from multiple sources for example Color, the input 0 attributes will go in with the same attribute name `Color`. The other inputs have `in1_Color`, `in2_Color` etc. Only the inputs from input 0 get outputted plus newly created attributes.
+
+
+### MathCombinePOP
+Is like `MathMixPOP` but it lets you gather together attributes.
+
 
 #### Work with angles
 When you want to work with angles in a `MathMixPOP` you can set the unit on the `INput` page to `Degrees`,`Radiant` or `Cycles`.
@@ -255,9 +281,6 @@ There are multiple ways to channels from CHOP into your POP attributes.
 First is to create a uniform in the `MathMix` and assign the value from the CHOP. For example assign some r,g,b color values. Then in the `Combine` tab use operation A and reference the uniform and assign it to `Color` result scope.
 
 ![Assign Color From CHOP Img](/img/TD/AssignColorFromChop.png)
-
-
-
 
 ## Rendering
 To be able to render your POP data it needs to contain Primitive information. If you just instance from your POP data you don't need to have primitives, just the point information.
