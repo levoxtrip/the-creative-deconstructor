@@ -153,6 +153,17 @@ font-family: var(--font-heading);
   display: block;
 }
 
+/*--------------- Iframe settings---------*/
+.iframe-wrapper {
+  margin: 1.5rem 0;
+  width: 100%;
+}
+
+.iframe-wrapper iframe {
+  border-radius: 8px;
+}
+
+
 /* YouTube embed styling */
 .youtube-container {
   position: relative;

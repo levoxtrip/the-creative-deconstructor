@@ -6,7 +6,7 @@ import YouTubeEmbed from './YoutubeEmbed'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { getYouTubeId, isYouTubeUrl } from '../utils/youtubeHelper'
-
+import rehypeRaw from 'rehype-raw'
 // Custom renderer that handles special code blocks
 const IMAGE_BASE_PATH = '..assets/img'
 function MarkdownRenderer({ content,articles,onArticleSelect,onDownloadClick }) {
@@ -42,6 +42,7 @@ function MarkdownRenderer({ content,articles,onArticleSelect,onDownloadClick }) 
 
   return (
     <ReactMarkdown
+    rehypePlugins={[rehypeRaw]}
       components={{
         //Handle Links
         a: ({ href, children, ...props }) => {
@@ -111,7 +112,21 @@ function MarkdownRenderer({ content,articles,onArticleSelect,onDownloadClick }) 
     </a>
   )
 },
-
+iframe: ({ src, title, height, style, ...props }) => {
+      return (
+        <div className="iframe-wrapper">
+          <iframe
+            src={src}
+            title={title || 'Embedded content'}
+            height={height || '300'}
+            style={{ width: '100%', border: 'none' }}
+            loading="lazy"
+            allowFullScreen
+            {...props}
+          />
+        </div>
+      )
+    },
 
 
         img: ({ src, alt, ...props }) => {
