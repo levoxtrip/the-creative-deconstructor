@@ -193,7 +193,15 @@ You also can create arrays of attributes or even matrices up to 4x4.
 Is similar to the first page of `MathCombinePOP` You can decite which attributes you want to work with.
 
 ### FieldPOP
-The 
+
+### GroupPOP
+The `GroupPOP` allows to create groups for points or primitives. You can group by attributes. Create a group name on the `Create` tab, and on the `Attribute` tab you select the attribute you want to use and the condition that defines if your point should be in the group or not.
+
+![Translate Grouped Points POP](/img/TD/TranslateGroupedPointsPOP.png)
+
+Another way to create a group by selection the points with thinning out. You can enable it on the `Thin` tab and select the thin steps.
+
+
 
 ### NormalizePOP
 You can use the `NormalizePOP` to rescale your position values to the range of 0-1. It also allows you to convert XYZ position into polar or cylindrical coordinates, i.e. radius or latitude/longitude expresses into 0-1 range.
