@@ -39,6 +39,8 @@ Primitives are used for topological structures determining how points are connec
 
 A cube has 6 primitive faces(Quads), each made out of 4 vertices.
 
+#### PrimitivePOP
+
 With the `PrimitivePOP` we can create different primitive types. When you input point data you can create primitives from the point input. You go to the `Primitives` tab and select for example Method `By Set` and set `Primitive Type` to `Triangle` every 3 points create a triangle. 
 
 ![Points To Primitive Triangle](/img/TD/PointsToPrimitiveTriangle.png)
@@ -160,10 +162,12 @@ Allows to create a primitive from points and other inputs.
 ![Convert From Points Into Primitives Img](/img/TD/ConvertFromPointsIntoPrimitives.png)
 
 ### PointPOP
+You can use the `PointPOP` to create single or multiple point data with or without a point primitive.
 To add attributes in `PointPOP` go to Setup tab and under new attributes give a name for your custom attribute. You then can define what type that attribute is. In the *Point* tab you can assign the value for the attribute for the points.
 
 ### LinePOP
-Create lines from point data. Also can subdivide to create smoother transitions between your point data.
+With the `LinePOP` we can create points along a line or shape a line with a number of points.
+You also can just create two points for the start and the end of the line and then subdivide that line information to create smoother transitions between your point data. The `LinePOP` also let's you decide how you want to interpolate between the points of your line.
 
 ### CurvePOP
 Allows you to create curves with different curve types like `Linear`,`EaseInOut`.
@@ -192,7 +196,12 @@ You also can create arrays of attributes or even matrices up to 4x4.
 ### AttributeCombinePOP
 Is similar to the first page of `MathCombinePOP` You can decite which attributes you want to work with.
 
-### FieldPOP
+### DeletePOP
+In the `DeletePOP` we can delete and thin out our source data. We can thin out a specified range or randomly.
+We can delete by an attribute like `weight` from a `FieldPOP` or by a specified pattern.
+![Delete Points By Attribute Or Pattern Img](/img/TD/DeletePointsByAttributeOrPattern.png)
+
+
 
 ### GroupPOP
 The `GroupPOP` allows to create groups for points or primitives. You can group by attributes. Create a group name on the `Create` tab, and on the `Attribute` tab you select the attribute you want to use and the condition that defines if your point should be in the group or not.
@@ -200,8 +209,6 @@ The `GroupPOP` allows to create groups for points or primitives. You can group b
 ![Translate Grouped Points POP](/img/TD/TranslateGroupedPointsPOP.png)
 
 Another way to create a group by selection the points with thinning out. You can enable it on the `Thin` tab and select the thin steps.
-
-
 
 ### NormalizePOP
 You can use the `NormalizePOP` to rescale your position values to the range of 0-1. It also allows you to convert XYZ position into polar or cylindrical coordinates, i.e. radius or latitude/longitude expresses into 0-1 range.
@@ -212,12 +219,17 @@ For example you can take an attribute from a source POP, use a `NormalizePOP` to
 
 You could then in a `MathCombine` take the color attributes and differently blend them.
 
+#### Normalizing Single Component
+When you normalize only one component like P(1) we still have to select `Box X` instead of `Box Y` or `Box Z` because the y is the only component passed to be affected so it's treated as the first component/x.
+![Normalizing Single Component Img](/img/TD/Normalizing-Single-Component.png)
+
+
 ### SprinklePOP
 Allows to distribute points randomly over given volume or surface. It needs triangle or quads as input primitives.
 
 
 ## Referencing other points
-The most efficient way to reference points is to use `GLSLPOP`. You can create an `Output Attribute`in the paramters of the operator and map it to the desired outcome.
+The most efficient way to reference points is to use `GLSLPOP`. You can create an `Output Attribute`in the parameters of the operator and map it to the desired outcome.
 ``
 
 ## Transformations

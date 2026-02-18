@@ -331,6 +331,35 @@ void main(){
 }
 ```
 ### Rectangle
+When we draw a rectangle we want to know for every pixel, how far it is from the edge of a rectangular shape.
+
+SYMMETRY TRICK
+
+
+To evaluate if our currently calculated point is in the shape or not we have three different cases depending on where the point is relative to the shape.
+**Case1:Horizontal and Vertical Distance Are Negative**
+When both distances `d.x` and `d.y` of our point are negative we know it is inside the shape. The closest edge to your point is which ever axis you are least inside the shape.
+
+![Distance To Sides In Rectangle Img](/img/Shader/DistanceToSidesRectangle.png)
+
+We can evaluate the closest edge of the shape with `max(d.x,d.y)` which returns the "bigger" component of the two, in this case the one closer to 0.
+`max(-0.2,-0.5) -> -0.2`
+To make sure that the distances "inside" the shape are not bigger than 0 we need to wrap the max function inside another `min()` which always returns the smaller values.
+`min(max(d.x,d.y),0.0)`
+This makes sure that this case only is relevant when point is inside the shape otherwise 0.0 gets returned.
+
+**Case2: One Distance Component Is Positive One Negative**
+![Distance To Sides In Rectangle Img](/img/Shader/DistanceToSidesRectangleCase2.png)
+In this case only the positive component matters because that is the distance to the nearest face of the shape. With `max(d,0.0)` zeros out the negative component. With the `length()` we get the distance of the positive component.
+
+
+**Case3: Both Distances Are Positive**
+When both distances are positive the point has overshot the rectangle on both axis. The closest distance to the shape is the diagonal distance to the corner.
+![Distance To Sides In Rectangle Img](/img/Shader/DistanceToSidesRectangleCase3.png)
+`max(d,0.0)` doesn't do anything here because both component are bigger than 0 and they get passed unchanged to the `length()` which computes the diagonal distance of the point towards the corner.
+
+
+---
 When we want to draw a rectangle we have to think about what "inside a rectangle* means.
 For a rectangle centered at origin with a width W and a height H:
 - A point is inside if its x-coordinates are between -W/2 and +W/2
@@ -343,9 +372,9 @@ Because a rectangle is symmetric we can fold space and put our focus on only one
 For that can use `abs(uv)`. We then subtract half the size of the rectangle `size*0.5` to get the distance of the point towards the edge of the rectangle. Negative means inside and positive means outside.
 
 We have two distances dist.x and dist.y. We need *one* number that tells us inside or outside of the shape.
-What operation on two numbers gives a negative result only when both inputs are negative? Max picks the bigger of the two inputs. If one number is positive, max returns something positive. The only way to get a neative result is if both numbers are negative - meaning inside both dimentions of the rectangle.
+What operation on two numbers gives a negative result only when both inputs are negative? `max()` picks the bigger of the two inputs. If one number is positive, max returns something positive. The only way to get a negative result is when both numbers are negative - meaning inside both dimensions of the rectangle.
 
-For the rectangle: You're only inside if you're inside both x and y dimention of the rectangle.
+For the rectangle: You're only inside if you're inside both x and y dimension of the rectangle.
 
 To combine the x and y distances of the point into a single distance we use the `max()` function. It returns the bigger of the two distances.
 ```
