@@ -167,7 +167,15 @@ To add attributes in `PointPOP` go to Setup tab and under new attributes give a 
 
 ### LinePOP
 With the `LinePOP` we can create points along a line or shape a line with a number of points.
-You also can just create two points for the start and the end of the line and then subdivide that line information to create smoother transitions between your point data. The `LinePOP` also let's you decide how you want to interpolate between the points of your line.
+You also can just create two points for the start and the end of the line and then subdivide that line information to create smoother transitions between your point data. The `LinePOP` also let's you decide how you want to interpolate between the points of your line. 
+If you want to create some custom attributes for each point of your line you can go to `Setup` tab and add these as attributes.
+
+#### Split Line In LineStrips
+The `LinePOP` lets you split your line in multiple linestrips. Activate under `Setup` `Multiple Line Strips`. You then can define at which point each linestrip starts and ends. 
+
+![Split Line In LineStrips Img](/img/TD/BreakingLineIntoLineStrips.png)
+
+After properly dividing your line into different strips you the ncan do a post subdivision to make sure you have certain amount of points for each linestrip.
 
 ### CurvePOP
 Allows you to create curves with different curve types like `Linear`,`EaseInOut`.
@@ -209,6 +217,27 @@ The `GroupPOP` allows to create groups for points or primitives. You can group b
 ![Translate Grouped Points POP](/img/TD/TranslateGroupedPointsPOP.png)
 
 Another way to create a group by selection the points with thinning out. You can enable it on the `Thin` tab and select the thin steps.
+
+## LineDividePOP
+The `LineDividePOP` allows to define how to subdivide your line data. We also can set the interpolation between the points of the line.
+
+## LineMetricsPOP
+With the `LineMetricsPOP` you can output information about the linestrip attributes. It also computes measurements of directions, distance the points travel between each other and more.
+So it for example allows us to evaluate the distance of the points to the start or the end of a line strip or the length of the line strip. 
+It also allows you to get the tangents of your line. 
+Another useful application is to get the direction vector to the next point.
+![Direction To Next Point On Line Img](/img/TD/DirectionToNextPointOnLine.png)
+
+## Define If Hard Or Soft Curve
+Output with the `LineMetricsPOP` the `Curvature` attribute. Then in a `MathMixPOP` you define a condition `A>B` `Curv>Threshold` and as a result `Hard`
+![ Define If Hard Or Soft Curve Img](/img/TD/DefineIfHardCurve.png)
+
+
+## Assign Color By Distance To Start
+Under the `LineStrip` tab we find attributes like `Distance From Start/End`. We can use them to assign the distance to the color attribute.
+![Distance From Start To Color Img](/img/TD/DistanceFromStartToColor.png)
+
+
 
 ### NormalizePOP
 You can use the `NormalizePOP` to rescale your position values to the range of 0-1. It also allows you to convert XYZ position into polar or cylindrical coordinates, i.e. radius or latitude/longitude expresses into 0-1 range.
