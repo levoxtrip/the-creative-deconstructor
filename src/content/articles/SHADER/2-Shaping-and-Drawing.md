@@ -331,70 +331,157 @@ void main(){
 }
 ```
 ### Rectangle
-When we draw a rectangle we want to know for every pixel, how far it is from the edge of a rectangular shape.
+When we want to draw a rectangular shape, again the core question is: for every pixel on the screen, how far is it away from the shape? A negative distance means inside and positive outside.
 
-SYMMETRY TRICK
+A rectangle centered at the origin is symmetric. A point at (-0.3,0.2) has the same distance as the point (0.3,0.2). This means the sign of the coordinate doesn't affect how far away you are from the shape.This allows us to fold space and put our focus only on quadrant of the shape.
+![Symmetric Distances Img](/img/Shader/SymmetricRectangle.png)
 
+So the first move is to fold all four quadrants into one with `abs(uv)`. Now you only need to think about the top right quadrant of your rectangle and every calculation you there applied for the other three equally.
 
-To evaluate if our currently calculated point is in the shape or not we have three different cases depending on where the point is relative to the shape.
-**Case1:Horizontal and Vertical Distance Are Negative**
-When both distances `d.x` and `d.y` of our point are negative we know it is inside the shape. The closest edge to your point is which ever axis you are least inside the shape.
+After folding you subtract half the size of the rectangle to get the distance of our currently calculated point towards the edge of the rectangle.
+
+`vec2 d = abs(uv) - size * 0.5;`
+
+To evaluate if a point is in the shape or not we have three different cases we want to look at:
+**Case1: Horizontal and Vertical Distance Are Negative**
+When both distances `d.x` and `d.y` are negative we know the point is inside the shape. The edge closest to your point is which ever axis you are least inside the shape.
 
 ![Distance To Sides In Rectangle Img](/img/Shader/DistanceToSidesRectangle.png)
 
-We can evaluate the closest edge of the shape with `max(d.x,d.y)` which returns the "bigger" component of the two, in this case the one closer to 0.
-`max(-0.2,-0.5) -> -0.2`
-To make sure that the distances "inside" the shape are not bigger than 0 we need to wrap the max function inside another `min()` which always returns the smaller values.
+We can evaluate the closest edge of the shape with `max(d.x,d.y)`, which returns the bigger component, in this case the one closer to 0.0.
+`max(-0.2,-0.5) ->-0.2`
+To make sure that the distances inside the shape are not bigger than 0.0 we need to wrap the `max()` calculation into a `min()` which always returns the smaller values.
 `min(max(d.x,d.y),0.0)`
-This makes sure that this case only is relevant when point is inside the shape otherwise 0.0 gets returned.
+This assures that this case is only relevant when the point is inside the shape otherwise 0.0 gets returned.
 
-**Case2: One Distance Component Is Positive One Negative**
+**Case2: One Distance Is Positive One Negative**
 ![Distance To Sides In Rectangle Img](/img/Shader/DistanceToSidesRectangleCase2.png)
-In this case only the positive component matters because that is the distance to the nearest face of the shape. With `max(d,0.0)` zeros out the negative component. With the `length()` we get the distance of the positive component.
+In this case only the positive component matters because that is the distance to the nearest face of the shape. With `max(d,0.0)` we can zero out the negative component and `length()` of the result gives us the distance of the positive component.
 
 
 **Case3: Both Distances Are Positive**
-When both distances are positive the point has overshot the rectangle on both axis. The closest distance to the shape is the diagonal distance to the corner.
+When both distances are positive the point has overshot the rectangle on both axis. The closest distance to the shape is the diagonal distance to the corner - the hypotenuse of the two overshoots.
 ![Distance To Sides In Rectangle Img](/img/Shader/DistanceToSidesRectangleCase3.png)
-`max(d,0.0)` doesn't do anything here because both component are bigger than 0 and they get passed unchanged to the `length()` which computes the diagonal distance of the point towards the corner.
+`max(d,0.0)` from the second case passes both components through unchanged and `length()` computes `sqrt(d.x² + d.y²)` the euclidean distance of the point towards the corner.
 
-
----
-When we want to draw a rectangle we have to think about what "inside a rectangle* means.
-For a rectangle centered at origin with a width W and a height H:
-- A point is inside if its x-coordinates are between -W/2 and +W/2
-- AND its y-coordinates are between -H/2 and H/2
-
-IMAGE HERE
-
-So now we want to think about the distance of a point, that is outside the rectangle, towards the nearest edge of the shape.
-Because a rectangle is symmetric we can fold space and put our focus on only one quadrant. A point at (-0.3,0.2) has the same distance to the rectangle as a point at (0.3,0.2). So the sign doesn't matter for the distance - only its magnitude. 
-For that can use `abs(uv)`. We then subtract half the size of the rectangle `size*0.5` to get the distance of the point towards the edge of the rectangle. Negative means inside and positive means outside.
-
-We have two distances dist.x and dist.y. We need *one* number that tells us inside or outside of the shape.
-What operation on two numbers gives a negative result only when both inputs are negative? `max()` picks the bigger of the two inputs. If one number is positive, max returns something positive. The only way to get a negative result is when both numbers are negative - meaning inside both dimensions of the rectangle.
-
-For the rectangle: You're only inside if you're inside both x and y dimension of the rectangle.
-
-To combine the x and y distances of the point into a single distance we use the `max()` function. It returns the bigger of the two distances.
-```
-max(0.3,0.7)// returns 0.7
-max(-0.9,0.2)// returns 0.2
-```
-If either component is positive, the `max()` is positive, so you're outside. Only if both are negative (inside on both axes) is the `max()` negative.
-
-For our rectangle we want to be inside on *both* axes, so we need both numbers to be negative. With `max()` the only way it's negative is if both inputs were negative(so both are inside the rectangle)
-
-IMAGE HERE
-
-
-```
-float rectSDF(vec2 uv,vec2 size){
-	vec2 dist = abs(uv) - size * 0.5;
-	return max(dist.x,dist.y);
+Now we have everything together and we get our rectangle SDF with: 
+``` 
+float rectSDF(vec2 uv, vec2 size) {
+    vec2 d = abs(uv) - size * 0.5;
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
 }
 ```
-CODE HERE
+`length(max(d,0.0))` handles cases 2 and 3(outside distance) and `min(max(d.x, d.y), 0.0)` handles the inside distance. We add them together because only one of them is ever nonzero - when you'inside, the length term is zero, when you're outside the min term is zero.
+
+To draw a rectangle we pass can pass our SDF into a `step()` or `smoothstep()` function.
+
+```
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+float rectSDF(vec2 p, vec2 center, vec2 size){
+	vec2 uv = p -center;
+	vec2 d = abs(uv)-size*0.5;
+	return length(max(d,0.0))+min(max(d.x,d.y),0.0);
+}
+
+void main(){
+	vec2 uv = gl_FragCoord.xy/u_resolution;
+	uv.x *= u_resolution.x/u_resolution.y;
+
+	float d = rectSDF(uv,vec2(0.5),vec2(0.3,0.1));
+	float rect = 1.0 -step(0.0,d);
+	// For smooth edges
+	//float rect = 1.0-smoothstep(-0.005,0.005,d);
+	
+	vec3 color = vec3(rect);
+
+	gl_FragColor = vec4(color,1.0);
+}
+```
+```glsl
+
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+float rectSDF(vec2 p, vec2 center, vec2 size){
+	vec2 uv = p -center;
+	vec2 d = abs(uv)-size*0.5;
+	return length(max(d,0.0))+min(max(d.x,d.y),0.0);
+}
+
+void main(){
+	vec2 uv = gl_FragCoord.xy/u_resolution;
+	uv.x *= u_resolution.x/u_resolution.y;
+
+	float d = rectSDF(uv,vec2(0.5),vec2(0.3,0.1));
+	float rect = 1.0 -step(0.0,d);
+	// For smooth edges
+	//float rect = 1.0-smoothstep(-0.005,0.005,d);
+	
+	vec3 color = vec3(rect);
+
+	gl_FragColor = vec4(color,1.0);
+}
+```
+#### Rounded Rectangle
+When we look back at case3 where both `d.x` and `d.y` are possible `length(max(d,0.0))` calculates the diagonal distance to the corner point. This creates a distance field that fans out radially from the corner where the lines of equal distance around the corner form an circular arc.
+
+![Equal Distances Form Circular Arc Img](/img/Shader/EqualDistancesFormCircularArc.png)
+
+What we want to do in a rounded rectangle is to take a sharp rectangle and shave of the corners, placing each sharp 90° corner with a circular arc with the radius of the arc as the rounding amount.
+What it means for the distance field is that a rounded rectangle is a smaller rectangle where you've pushed the "zero boundary" of the edges outward by the size of the radius of the corner.
+![Equal Distances Form Circular Arc Img](/img/Shader/RoundedRectangleDrawing.png)
+To push the "zero boundary" of the shape you subtract a constant r from every distance value. Every point that used to be at distance r is now at distance 0. That means the boundary moves outward by r. You've inflated the shape, like blowing air into it.
+![Equal Distances Form Circular Arc Img](/img/Shader/InflatingTheShapeWithSubtracting.png)
+
+So for a rounded rectangle we shrink it by `r` by adding `r` to the distance calculation.
+`vec2 d = abs(uv)-size*0.5 +r;`
+Then we subtract `r` from the distance field calculation.
+`length(max(d,0.0)) + min(max(d.x,d.y),0.0)-r`
+Along the flat edge pushing it outward by r gives another straight line just shifted out. The edge moves back to where the original rectangles edge was. The shrink and the subtract cancel each other out perfectly.
+At a corner the isolines are circular arcs. PUshing a circular arc outward by `r` gives you a bigger circular arc. The sharp corner point becomes a smooth curve.
+A physical way to see it to imagine the shrunken rectangle as a wooden block. Now wrap a string of length `r` around the outside, keeping it taut. Along the flat sides, the string just runs parallel — the traced outline is still flat. But at the corner, the string swings around the corner point, tracing a quarter-circle of radius r. The shape you trace is the rounded rectangle.
+
+To sum it up, the distance field near a sharp corner is already circular (because diagonal distance uses `length()`). Subtracting a constant from the whole field pushes the boundary outward — flat parts stay flat, but the circular parts near corners become visible as smooth arcs.
+```
+float roundedRectSDF(vec2 uv, vec2 size, float r) {
+    vec2 d = abs(uv) - size * 0.5 + r;
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - r;
+}
+```
+
+```glsl
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+float roundedRectSDF(vec2 p, vec2 center, vec2 size, float r) {
+    vec2 uv = p -center;
+    vec2 d = abs(uv) - size * 0.5 + r;
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0) - r;
+}
+
+void main(){
+	vec2 uv = gl_FragCoord.xy/u_resolution;
+	uv.x *= u_resolution.x/u_resolution.y;
+
+	float d = roundedRectSDF(uv,vec2(0.5),vec2(0.6,0.4),0.1);
+	float rect = 1.0 -step(0.0,d);
+	// For smooth edges
+	//float rect = 1.0-smoothstep(-0.005,0.005,d);
+	
+	vec3 color = vec3(rect);
+
+	gl_FragColor = vec4(color,1.0);
+}
+```
+
+
+
+
 
 
 ### LineSDF

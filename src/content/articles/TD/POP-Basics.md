@@ -170,12 +170,30 @@ With the `LinePOP` we can create points along a line or shape a line with a numb
 You also can just create two points for the start and the end of the line and then subdivide that line information to create smoother transitions between your point data. The `LinePOP` also let's you decide how you want to interpolate between the points of your line. 
 If you want to create some custom attributes for each point of your line you can go to `Setup` tab and add these as attributes.
 
+When we set `Interpolation Method Per Segment` to true we can have different interpolations depending on the segment of our line. 
 #### Split Line In LineStrips
 The `LinePOP` lets you split your line in multiple linestrips. Activate under `Setup` `Multiple Line Strips`. You then can define at which point each linestrip starts and ends. 
 
 ![Split Line In LineStrips Img](/img/TD/BreakingLineIntoLineStrips.png)
 
 After properly dividing your line into different strips you the ncan do a post subdivision to make sure you have certain amount of points for each linestrip.
+
+#### Create Bezier Curve
+With the `Interpolation Method` `Cubic Bezier With Tangents` we can create cubic bezier curves inside the `LinePOP`. It allows to control your line by settings tangents at the points of the line. Under `Tangent Constraint` we can select if we want `Symmetric`, so only on tangent needs to be specified and the in tangent equals to the out tangent. Or `Aligned` where in and out are along the same line with different length values of the tangent.
+![Cubic Bezier In LinePOP Img](/img/TD/CubicBezierInLinePOP.png)
+
+
+#### LinePOP to Create CHOP Animation
+We can use the `LinePOP` to create a curve that you then can use as CHOP data.
+![Animation data from LinePOP Img](/img/TD/AnimationDataFromLinePOP.png)
+
+#### Move Single Point Along Line
+If you want to use a `LinePOP` to create your path where you shape should move you can use a `DeletePOP` to only keep the currently single point that moves along the line.
+In the `Pattern` tab you use the expression `str(absTime.frame%me.inputs[0].numPoints())` and activate `Invert`. This creates a modulo animation through all the points of the line where only one point per frame is is kept. 
+![Move Single Point Along Line Img](/img/TD/MoveSinglePointAlongLine.png)
+
+
+
 
 ### CurvePOP
 Allows you to create curves with different curve types like `Linear`,`EaseInOut`.
@@ -204,6 +222,9 @@ You also can create arrays of attributes or even matrices up to 4x4.
 ### AttributeCombinePOP
 Is similar to the first page of `MathCombinePOP` You can decite which attributes you want to work with.
 
+### CopyPOP
+The `CopyPOP` allows to copy geometry along some sample data. You need to set what the template data for position and rotation and scale are.
+
 ### DeletePOP
 In the `DeletePOP` we can delete and thin out our source data. We can thin out a specified range or randomly.
 We can delete by an attribute like `weight` from a `FieldPOP` or by a specified pattern.
@@ -227,6 +248,16 @@ So it for example allows us to evaluate the distance of the points to the start 
 It also allows you to get the tangents of your line. 
 Another useful application is to get the direction vector to the next point.
 ![Direction To Next Point On Line Img](/img/TD/DirectionToNextPointOnLine.png)
+
+## LineSmoothPOP
+`LineSmoothPOP` can do pre-dividing, smoothing and resampling of a line all in one operator.
+
+## LineResamplePOP
+In the `LineResamplePOP` we can resample our line to a certain amount of points.
+
+
+## LookupTexturePOP
+We can assign the color from a texture with the `LookupTextPOP` and set the `Output Attribute` to Color.
 
 ## Define If Hard Or Soft Curve
 Output with the `LineMetricsPOP` the `Curvature` attribute. Then in a `MathMixPOP` you define a condition `A>B` `Curv>Threshold` and as a result `Hard`
@@ -252,19 +283,38 @@ You could then in a `MathCombine` take the color attributes and differently blen
 When you normalize only one component like P(1) we still have to select `Box X` instead of `Box Y` or `Box Z` because the y is the only component passed to be affected so it's treated as the first component/x.
 ![Normalizing Single Component Img](/img/TD/Normalizing-Single-Component.png)
 
+### RevolvePOP
+Allows to convert a linestrip into a surface of revolution.
 
 ### SprinklePOP
 Allows to distribute points randomly over given volume or surface. It needs triangle or quads as input primitives.
 
+### TrailPOP
+The `TrailPOP` turns each point of the input into a linestrip with x seconds history of the points trajectory. It includes an age attribute per point - time in seconds since point was recorded with `0` age of the point recorded at the current frame. The first point in the linestrip is the point recorded at 0(the current frame). You can reverse that by settings `Oldest point first` to true.
+
+If you want to recompute the points from the linestrips use a `LineDividePOP`. 
+You can increase the line division for cases where your framerate might drop and you want to make sure you have enough points per time step and fill the time gaps with more points. For that you can set `Division Per Segment` to 5-10. Also assign an interpolation method like `Cardinal`.
+
+We also can use the `age` attribute from the `TrailPOP` to space out the points so they are separated equally in time.
+
+The `TrailPOP` can hold previous and current position in a two point line strip. This gives you the velocity of the point movement.
+
+![Get Velocity With TrailPOP Img](/img/TD/GetVelocityWithTrailPOPLineMetrics.png)
+![Get Velocity With TrailPOP Img](/img/TD/GetVelocityWithTrailPOPLineMetrics2.png)
+
+[Download Example File](/files/TD/CalculateVelocity.tox)
+
+We can create something similar with the `CachePOP`.
+
 
 ## Referencing other points
 The most efficient way to reference points is to use `GLSLPOP`. You can create an `Output Attribute`in the parameters of the operator and map it to the desired outcome.
-``
+
 
 ## Transformations
 
 ### Rotate instanced shapes 
-If you want to rotate instanced shapes dependen on the index of the point you can add a `Rotation` attribute to your source data with an `AttributePOP`. In an `MathMixPOP` the first thing you do is to convert the build-in attribute `_PointU` into `NormalizedIndex` with `Operation A`. You then map that normalized point index data by multiplying it with 360 and define a `Result Scope` like `FullCycle`. You then can set this value to the one of the components of the `Rotation` attribute.
+If you want to rotate instanced shapes dependend on the index of the point you can add a `Rotation` attribute to your source data with an `AttributePOP`. In an `MathMixPOP` the first thing you do is to convert the build-in attribute `_PointU` into `NormalizedIndex` with `Operation A`. You then map that normalized point index data by multiplying it with 360 and define a `Result Scope` like `FullCycle`. You then can set this value to the one of the components of the `Rotation` attribute.
 
 ![Rotate With Normalized Point Index](/img/TD/RotateWithNormalizedPointIndex.png)
 
