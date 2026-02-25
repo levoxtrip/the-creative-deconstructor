@@ -330,6 +330,46 @@ void main(){
 
 }
 ```
+
+### Ring
+As we have seen above with `length(p) - radius` we get the signed distance to a circles with its given radius. But now we want to create a ring.
+
+```
+float ringSDF(vec2 p, float radius, float thickness){
+	return abs(length(p)-radius)-thickness*0.5;
+}
+```
+
+What we can do is to evaluate how far from the circle line we are, no matter which side of the line. For that we use `abs(length(p)-radius)` which gives the unsigned distance of the point `p`. 
+![Abs Distance Ring Img](/img/Shader/AbsDistanceRing.png)
+![Equally Growing Distance Img](/img/Shader/EquallyGrowingDistance.png)
+At the end we are subtracting half the thickness to put the points in the valley into negative values and create a SDF again where we have positive values outside the shape and negative ones inside the shape.
+![New Ring SDF Img](/img/Shader/NewRingSDF.png)
+The ring is centered at the circle line with distance `radius` from center and extends inward and outward by half the thickness.
+
+```glsl
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+float ringSDF(vec2 p, vec2 center, float radius, float thickness){
+    vec2 uv = p-center;
+    return abs(length(uv)-radius)-thickness*0.5;
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy/u_resolution.xy;
+    uv.x *= u_resolution.x/u_resolution.y;
+
+    vec3 color = vec3(0.);
+    float shape= ringSDF(uv,vec2(0.5),0.2,0.032);
+    color = vec3(1.0)*(1.0-step(0.0,shape));
+
+    gl_FragColor = vec4(color,1.0);
+}
+```
+
+
 ### Rectangle
 When we want to draw a rectangular shape, again the core question is: for every pixel on the screen, how far is it away from the shape? A negative distance means inside and positive outside.
 
@@ -478,10 +518,6 @@ void main(){
 	gl_FragColor = vec4(color,1.0);
 }
 ```
-
-
-
-
 
 
 ### LineSDF
@@ -657,3 +693,115 @@ Third we measure distance from ourselves to that closest point.
 
 This pattern repeats throughout SDFs. Whenever you need the distance to a bounded shape, you project onto its surface, constrain to its boundaries and then measure it.
 
+### Regular Polygon
+A regular polygon is a shape where all sides are equal length and all angles are equal size. This rotational symmetry we can use to draw regular polygons.
+![Regular Polygons Img](/img/Shader/RegularPolygons.png)
+A polygon with n sides looks the same when rotates by `(360/n)`. So we can divide any regular polygon into `n` identical pizza slices, all meeting at the center.
+
+Because all slices are identical we only need to know how to calculate the distance within one slice. We then "fold" any point into that reference slice and use the same calculation.
+So the steps that we have to do are:
+1. Figure out in which slice the point is in (based on the angle from center)
+2. Fold angle into reference slice.
+3. Calculate distance to the edge within that slice.
+
+Every point in 2D can be described by it's angle and distance from a center. This is called *polar coordinates*.
+`float angle = atan(p.y,p.x)`
+`atan()` returns the angle in radians in -PI and PI range.
+![Radians Img](/img/Shader/Radians.png)
+
+To get the size of the reference slice we divide a full circle by the amount of sides of our polygon. This gives us how wide each pizza slice is in the angle space.
+`float slice = 6.28318/float(sides)`
+
+Now we want to fold any angle in the shape into a single reference slice. For that we take the modulo of the angle and the slice size. `mod()` gives the remainder of the division of angle by slice. This wraps any angle into the range 0 - slice-angle. No matter what slice the original angle was, we now have a value between 0 and slice.
+`float a = mod(angle,slice) -slice*0.5;`
+With `-slice*0.5` we center the range around 0 - the values go from -slice/2 to slice/2. We want to center it because the edge of each polygon runs through the middle of each slice. By centering the angle around 0, the 0 degree points directly at the middle of the edge.
+
+![Slice Polygon Img](/img/Shader/SlicesDegrees.png)
+
+Now we are in our reference slice, the center at the bottom and the edge at the top, with angle `a` ranging from `-slice/2` to `slice/2`. We know that the edge of the polygon is a straight line and we need the distance from our point to the edge(How far are we away from the edge). To know how far you are from the edge you only care about the vertical position of your point, because of that straight line edge.
+
+So how do we find the vertical height of a point, given it's distance from center and it's angle.
+
+![Cosine Triangle Img](/img/Shader/CosineTriangle.png)
+The edge of the slice sits at `height/radius` from the center and the point height from the center is `length(p)*cos(a)`. So the dsitance from the point to the edge is your height minus edge height. 
+`length(p) * cos(a) - radius`. So `length(p)` gives us how far our point is from the center of the polygon and `cos(a)` converts your distance from the center into your height above the center. It's one when you are pointing straight to the edge and decreases when you angle towards the corner. 
+
+```
+float polygonSDF(vec2 p, int sides, float radius){
+	float angle = atan(p.y,p.x);
+	float TWO_PI = 6.28318;
+	float slice = TWO_PI/float(sides);
+	float a = mod(angle,slice) - slice*0.5;
+	return length(p) *cos(a) - radius;
+}
+```
+```glsl
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+float polygonSDF(vec2 p, vec2 center, float sides, float radius){
+	vec2 uv = p-center;
+    float angle = atan(uv.y,uv.x);
+	float TWO_PI = 6.28318;
+	float slice = TWO_PI/float(sides);
+	float a = mod(angle,slice) - slice*0.5;
+	return length(uv) *cos(a) - radius;
+}
+
+
+void main() {
+    vec2 uv = gl_FragCoord.xy/u_resolution.xy;
+    uv.x *= u_resolution.x/u_resolution.y;
+
+    vec3 color = vec3(0.);
+    float sides = 3.+floor(fract(u_time*0.21)*6.0);
+    float shape= polygonSDF(uv,vec2(0.5),sides,0.2);
+    color = vec3(1.0)*(1.0-step(0.0,shape));
+
+    gl_FragColor = vec4(color,1.0);
+}
+```
+
+To always have a flat edge at the bottom, we need to add some additional rotation of half slice plus 90° to the angle. `angle += slice * 0.5 + 1.5708;`
+
+```
+float polygonSDF(vec2 p, vec2 center, float sides, float radius){
+	vec2 uv = p-center;
+    float angle = atan(uv.y,uv.x);
+	float TWO_PI = 6.28318;
+    
+	float slice = TWO_PI/float(sides);
+	angle += slice * 0.5 + 1.5708; 
+    float a = mod(angle,slice) - slice*0.5;
+	return length(uv) *cos(a) - radius;
+}
+```
+```glsl
+
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+float polygonSDF(vec2 p, vec2 center, float sides, float radius){
+	vec2 uv = p-center;
+    float angle = atan(uv.y,uv.x);
+	float TWO_PI = 6.28318;
+    
+	float slice = TWO_PI/float(sides);
+	angle += slice * 0.5 + 1.5708; 
+    float a = mod(angle,slice) - slice*0.5;
+	return length(uv) *cos(a) - radius;
+}
+
+
+void main() {
+    vec2 uv = gl_FragCoord.xy/u_resolution.xy;
+    uv.x *= u_resolution.x/u_resolution.y;
+
+    vec3 color = vec3(0.);
+    float sides = 3.+floor(fract(u_time*0.21)*6.0);
+    float shape= polygonSDF(uv,vec2(0.5),sides,0.2);
+    color = vec3(1.0)*(1.0-step(0.0,shape));
+
+    gl_FragColor = vec4(color,1.0);
+}
+```
