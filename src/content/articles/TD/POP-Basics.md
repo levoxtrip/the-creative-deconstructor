@@ -56,18 +56,24 @@ With the `ConvertPOP` you  can convert your primitive data from one type to anot
 In an attribute we can store anything that can be expressed as numbers. Declaring attributes in POPs allows us to create our own information for each point. They can hold data like Color, Normals, Velocity. With a `POPDAT` you can see the attributes for your points, vertex and primitives. You can also display it in a graph from by converting it into CHOP data.
 
 ### Build-In Attributes
-By default most points come with certain build-in attributes:
+Build-In attributes are automatically precomputed attributes. They begin with `_`
 P - position
 N - normal
 Tex - Texture Coordinates
 _PointI - Index Point
 _PointU - Normalized Point Index (0-1)
 _NumPoints - Total amount of points
-_DimI[0] - 
+_NumPrims - Total amount of primitives
+_NumbVerts - Total amount of vertices
+_DimI[0] - Which column is point
+_DimI[1] - Which row is point
+_DimU[]
+_DimCy[] - 
+_DimSize[]
 _stepSeconds - 1/current Framerate
+_BoundsMaxP - 
 _PI
 
-To convert the build in 
 
 If you want to use the build-in attributes you need to explicitly convert them to conventional attributes. You can do that in a `MathMixPOP`.
 ![Convert Build In Attribute Img](/img/TD/ConvertBuildInAttribute.png)
