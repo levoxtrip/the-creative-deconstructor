@@ -252,7 +252,7 @@ The `GroupPOP` allows to create groups for points or primitives. You can group b
 Another way to create a group by selection the points with thinning out. You can enable it on the `Thin` tab and select the thin steps.
 
 ## LimitPOP
-The `LimitPOP` allows you to limit the amounts of points. You also can set upper or lower range for your attribute data.
+The `LimitPOP` allows you to limit the amounts of points. You also can set upper or lower range for your attribute data like how far your points can move or how big the point scale can get.
 
 ### LineDividePOP
 The `LineDividePOP` allows to define how to subdivide your line data. We also can set the interpolation between the points of the line.
