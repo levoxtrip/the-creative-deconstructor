@@ -160,7 +160,13 @@ Allows to create Torus shape. Similar to `SpherePOP` we can create subparts of a
 Allows to create a Tube shape
 
 ### PatternPOP
-With the `PatternPOP` you can create shapes and point data from math functions. If you input source data into the `PatternPOP` you also can modify attributes of the source with math functions.
+With the `PatternPOP` you can create shapes and point data from math functions. If you input source data into the `PatternPOP` you also can modify attributes of the source with math functions. It creates line-strip shapes using the elementary math functions. We also can use it to create attributes to a source pop using elementary math functions like sin,cosine, triangle, square waves, ease in out or random.
+
+We can use it for:
+making one or multiple 3D line strips generating P attribute that contain different curves.
+Also can use it to create tex data.
+add new attribute to input pop, each componeent containing separate type of curve.
+Modifify existing attribute of input pop by adding/multiplying curve to it.
 
 ### PrimitivePOP
 Allows to create a primitive from points and other inputs. 
@@ -229,7 +235,7 @@ You also can create arrays of attributes or even matrices up to 4x4.
 Is similar to the first page of `MathCombinePOP` You can decite which attributes you want to work with.
 
 ### CopyPOP
-The `CopyPOP` allows to copy geometry along some sample data. You need to set what the template data for position and rotation and scale are.
+The `CopyPOP` allows to copy geometry along some sample data. You need to set what the template data for position and rotation and scale are. To apply custom attributes in `CopyPOP` go to template attributes, activate `Use Template Attributes`. Assign operation and to what you want to apply the attributes. Depending on the size of your sample data, instancing in a geo is more performant than using the `CopyPOP`
 
 ### DeletePOP
 In the `DeletePOP` we can delete and thin out our source data. We can thin out a specified range or randomly.
@@ -245,36 +251,31 @@ The `GroupPOP` allows to create groups for points or primitives. You can group b
 
 Another way to create a group by selection the points with thinning out. You can enable it on the `Thin` tab and select the thin steps.
 
-## LineDividePOP
+## LimitPOP
+The `LimitPOP` allows you to limit the amounts of points. You also can set upper or lower range for your attribute data.
+
+### LineDividePOP
 The `LineDividePOP` allows to define how to subdivide your line data. We also can set the interpolation between the points of the line.
 
-## LineMetricsPOP
+### LineMetricsPOP
 With the `LineMetricsPOP` you can output information about the linestrip attributes. It also computes measurements of directions, distance the points travel between each other and more.
 So it for example allows us to evaluate the distance of the points to the start or the end of a line strip or the length of the line strip. 
 It also allows you to get the tangents of your line. 
 Another useful application is to get the direction vector to the next point.
 ![Direction To Next Point On Line Img](/img/TD/DirectionToNextPointOnLine.png)
 
-## LineSmoothPOP
+### LineSmoothPOP
 `LineSmoothPOP` can do pre-dividing, smoothing and resampling of a line all in one operator.
 
-## LineResamplePOP
+### LineResamplePOP
 In the `LineResamplePOP` we can resample our line to a certain amount of points.
 
 
-## LookupTexturePOP
+### LookupTexturePOP
 We can assign the color from a texture with the `LookupTextPOP` and set the `Output Attribute` to Color.
 
-## Define If Hard Or Soft Curve
-Output with the `LineMetricsPOP` the `Curvature` attribute. Then in a `MathMixPOP` you define a condition `A>B` `Curv>Threshold` and as a result `Hard`
-![ Define If Hard Or Soft Curve Img](/img/TD/DefineIfHardCurve.png)
-
-
-## Assign Color By Distance To Start
-Under the `LineStrip` tab we find attributes like `Distance From Start/End`. We can use them to assign the distance to the color attribute.
-![Distance From Start To Color Img](/img/TD/DistanceFromStartToColor.png)
-
-
+### MergePOP
+The `MergePOP` allows to combine Pop data.
 
 ### NormalizePOP
 You can use the `NormalizePOP` to rescale your position values to the range of 0-1. It also allows you to convert XYZ position into polar or cylindrical coordinates, i.e. radius or latitude/longitude expresses into 0-1 range.
@@ -311,6 +312,15 @@ The `TrailPOP` can hold previous and current position in a two point line strip.
 [Download Example File](/files/TD/CalculateVelocity.tox)
 
 We can create something similar with the `CachePOP`.
+
+## Define If Hard Or Soft Curve
+Output with the `LineMetricsPOP` the `Curvature` attribute. Then in a `MathMixPOP` you define a condition `A>B` `Curv>Threshold` and as a result `Hard`
+![ Define If Hard Or Soft Curve Img](/img/TD/DefineIfHardCurve.png)
+
+
+## Assign Color By Distance To Start
+Under the `LineStrip` tab we find attributes like `Distance From Start/End`. We can use them to assign the distance to the color attribute.
+![Distance From Start To Color Img](/img/TD/DistanceFromStartToColor.png)
 
 
 ## Referencing other points
