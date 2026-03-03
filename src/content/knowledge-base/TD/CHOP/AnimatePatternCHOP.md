@@ -5,7 +5,7 @@ tags:
   - TouchDesigner
 ---
 
-![Animate Through PatternCHOP](/img/AnimateThroughPatternCHOP.png)
+![Animate Through PatternCHOP](/img/TD/AnimateThroughPatternCHOP.png)
 
 # Animate Through PatternCHOP
 
