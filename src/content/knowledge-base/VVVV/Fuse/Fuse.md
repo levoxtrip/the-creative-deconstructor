@@ -23,11 +23,6 @@ There are also `ObjectSpace`, which does the same as `Position` but is a *vector
 
 `Noise(3D Scalar)` acts in the 3D space. For example if you want to apply some noise to a particle field in 3D you would use that.
 
-## Delegates
-*Delegate* regions are like functions in Fuse. They allow us to take an input like a SDF and use it in different ways. So it is using the same functionality that is inside the *Delegate* but how this function is used depends on where the delegate gets fed into. The output goes from the *region* not the output pin.
-
-Type *f11* to get the `Delegate(Region)` with one input and output. *f21* for two inputs and one outputs
-
 ## if
 Fuse has it's own if region that runs on GPU instead of CPU(like the if region in normal VL)
 
