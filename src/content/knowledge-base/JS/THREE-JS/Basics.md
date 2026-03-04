@@ -2659,6 +2659,10 @@ window.addEventListener('click', () => {
 })
 ```
 
+#### Drag Element
+For dragging objects we need three mouse events working together: `mousedown`(start dragging), `mousemove`(update position) and `mouseup`(stop dragging). When you press down you grab the object, as the mosue moves you calcualte how far it moved since the last frame and move the dragged object by the same amount. When you release you let go. 
+
+
 ## Mouse Movement
 
 We can use the mouse to set the position of our camera and let the camera always look at the object.
