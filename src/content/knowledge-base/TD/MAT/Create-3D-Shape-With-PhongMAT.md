@@ -1,5 +1,5 @@
 ---
-title: Create 3D Shape with PhongMAT
+title: Create 3D Surface with PhongMAT
 comments: true
 tags:
  - TD/SOP
@@ -8,7 +8,7 @@ tags:
  - TouchDesigner
 ---
 ![Assigning Height, Normal and Color Information to PhongMAT](/img/TD/Create3DShapePhongMAT1.png)
-# Create 3D Shape with PhongMAT
+# Create 3D Surface with PhongMAT
 Instead of using for example a `noiseSOP` to displace the vertex of a shape like a `gridSOP` we also can create this displacement with TOPs and a `PhongMAT` Material. We assign TOPs as *color* , *height* and *normal* Maps in the `PhongMAT`. 
 To enable the a texture as a heightmap we need to turn on `Enable Height Map` and to get actual displacement of the verteces of the Shape we need to turn on `Displace Vertices` in the `PhongMAT`. A bigger `Displace Scale` creates more extreme effects. Especially for values bigger than 1. 
 
