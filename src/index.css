@@ -764,3 +764,27 @@ pre code {
   background: #e67700;
   color: #fff;
 }
+
+
+/* Mobile responsive - add at the end of your CSS */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    min-width: unset;
+    
+    
+        max-height: 40vh;
+    overflow-y: auto;
+  }
+
+  .sub-header {
+    width: auto;
+  }
+
+  .article-content {
+    padding: 20px;
+  }
+}

@@ -1,7 +1,8 @@
 # Transformations
-When we want to apply transformations to our SDF shape we are not changing the SDF shape itself but instead change the coordinates before they reach the shape. This is called *domain manipulation.* Domain means here the input space - the coordinates you feed into your SDF. By transforming the coordinates you can move, shapes, repeat them, mirror them or warp them. The SDF doesn't really care about if the coordinates that get passed to it are raw pixel position or already manipulated coordinates. The SDF is like a rubber stamp, it always stamps the same shape but you can move, stretch, fold the paper before you stamp it.
+If you want to apply transformations in your shader you are working with *domain operations*. They define how you move, scale, rotate, repeat, warp and mirror shapes - all without changing the SDF itself but instead change the coordinates before they reach the shape. So the mental framework for these *domain operations* is that you actually don't move the shape, you move the coordinate system. Domain means here the input space - the coordinates you feed into your SDF. It continues to have it's rule "I draw at address/coordinate (0,0)" and you change what coordinate the currently processed pixels reports to the SDF. It always draws the shape centered where (0,0) is. The SDF is like a rubber stamp, it always stamps the same shape but you can move, stretch, fold the paper before you stamp it.
+So every domain operation is a transformation applied to `p`(the position) before you pass it to the SDF.
 
-When we think about translations in shader we have to separate two things. Where the pixel is on the screen and what pixel position we feed into the drawing math.
+When we think about transformations in shader we have to separate two things. Where the pixel is on the screen and what pixel position we feed into the drawing math.
 Imagine you have 5 columns on your screen and you want to paint column 3 red. If you pass the pixel position of the screen to your drawing function the third column will be drawn as red. Now imagine you add one to every column before you check the column number.
 ![Addition Subtraction Transformations Img](/img/Shader/Addition-Subtraction-Transformation.png)
 Now the second column thinks it is column 3 and get painted red. That's what a shader does, it visits every pixel and asks what its your address/coordinate. If you add to the coordinate before drawing, each pixel reports a higher number than it's real position.
@@ -12,13 +13,85 @@ You are not moving the shape, you are relabeling the pixel position and the shap
 ![Addition Subtraction Transformations Img](/img/Shader/Addition-Subtraction-Transformation2.png)
 
 ## Translate
-So when we translate a shape we move it from one position to another by subtracting and adding an offset to the coordinates.
+So when we translate a shape we move it from one position to another by subtracting or adding an offset to the coordinates.
 ```
 vec2 offset = vec2(0.2,0.3);
 vec2 movedUv = uv -offset;
-float d = rectSDF(movedUV,vec2(0.0),0.1);
+float d = polygonSDF(movedUV,0.1);
 ```
-So when we subtract we move the shape in the positive direction and when we add we move it to the negative direction. The SDF doesn't know about the screen positions. It only cares about the numbers you pass into it. It just knows draw my center wherever the passed coordinates are 0.0. We can imagine the coordinate system as a transparent grid floating above the screen. The SDF always draws the shape centered at (0,0). It only sees and acts on the numbers we give it.  When we subtract(0.2,0.1) from the center we are sliding the entire grid to the left by 0.2 and down by 0.1. The shape stays fixed at 0.0, but because the grid moved, the shape appears at a different position. So when we transform the coordinates, we don't tell the SDF to move. The sdf stays at 0.0. We are changing at what pixel position we have which values for the coordinates.
+```
+p = (0.2,0.3) // Pixel at screen position (0.2,0.3)
+p-center =(0.2-0.2,0.3-0.3) = (0.0,0.0)
+SDF receives (0.0,0.0) -> length(0.0) -> distance = 0.0-0.1 //Pixel inside circle
+```
+So the pixel at (0.2,0.3) reports (0.0,0.0) to the SDF. It thinks it is at the origin (0.0,0.0) and the circle appears at (0.2,0.3).
+So when we subtract we move the shape in the positive direction and when we add we move it to the negative direction. The SDF doesn't know about the screen positions. It only cares about the numbers you pass into it. It just follows it's inherit rule draw my center wherever the passed coordinates are 0.0. It only sees and acts on the numbers we give it.  When we subtract(0.2,0.3) from the center we are sliding the entire coordinate system to the left by 0.2 and down by 0.3. The shape stays fixed at 0.0, but because the grid moved, the shape appears at a different position.
+
+```glsl
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_time;
+
+float polygonSDF(vec2 pos, int sides,float radius){
+    pos = pos - vec2(0.5);
+    float slice = 6.28318530718 / float(sides);
+    float angle = atan(pos.y,pos.x);
+    float a = mod(angle,slice) -slice*0.5;
+    return length(pos)*cos(a)-radius;
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy/u_resolution.xy;
+    uv.x *= u_resolution.x/u_resolution.y;
+    vec3 color = vec3(0.);
+    vec2 offset = vec2(0.2,0.3);
+    float s = polygonSDF(uv-offset,5,0.1);
+    s = 1.0-step(0.0,s);
+    color = vec3(s);
+
+    gl_FragColor = vec4(color,1.0);
+}
+```
+```glsl
+float polygonSDF(vec2 pos, int sides,float radius){
+    pos = pos - vec2(0.5);
+    float slice = 6.28318530718 / float(sides);
+    float angle = atan(pos.y,pos.x);
+    float a = mod(angle,slice) -slice*0.5;
+    return length(pos)*cos(a)-radius;
+    
+}
+
+float lineSDF(vec2 pos,vec2 a, vec2 b,float thickness){
+    vec2 pa = pos-a;
+    vec2 ba = b-a;
+    float t = dot(pa,ba)/dot(ba,ba);
+    t = clamp(t,0.0,1.0);
+    vec2 closest = a + t*ba;  
+    return length(pos-closest)-thickness;
+}
+
+
+void main() {
+    vec2 uv = gl_FragCoord.xy/u_resolution.xy;
+    uv.x *= u_resolution.x/u_resolution.y;
+    vec3 color = vec3(0.);
+    
+    float l = lineSDF(uv,vec2(-1.0,0.5),vec2(1.0,0.5),0.0014);
+    l = 1.0-step(0.,l);
+    float l2 = lineSDF(uv,vec2(0.5,1.0),vec2(0.5,-1.0),0.0014);
+    l2 = 1.0-step(0.,l2);
+    l+=l2;
+    
+    
+    vec2 offset = vec2(0.2,0.30)*fract(u_time*0.2);
+    float s = polygonSDF(uv-offset,5,0.1);
+    s = 1.0-step(0.0,s);
+    color = vec3(s+l);
+
+    gl_FragColor = vec4(color,1.0);
+}
+```
 
 ## Scaling
 Scaling changes the size of shapes by stretching or compressing the coordinate system.

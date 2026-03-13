@@ -1,3 +1,3 @@
-# POP Scripting
+# Pattern Matching
 
-To get the number of points - `op('POP_name').numPoints()`
+Information about pattern matching here https://docs.derivative.ca/Pattern_Matching

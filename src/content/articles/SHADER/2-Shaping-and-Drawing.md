@@ -723,7 +723,7 @@ Now we are in our reference slice, the center at the bottom and the edge at the 
 So how do we find the vertical height of a point, given it's distance from center and it's angle.
 
 ![Cosine Triangle Img](/img/Shader/CosineTriangle.png)
-The edge of the slice sits at `height/radius` from the center and the point height from the center is `length(p)*cos(a)`. So the dsitance from the point to the edge is your height minus edge height. 
+The edge of the slice sits at `height/radius` from the center and the point height from the center is `length(p)*cos(a)`. So the distance from the point to the edge is your height minus edge height. 
 `length(p) * cos(a) - radius`. So `length(p)` gives us how far our point is from the center of the polygon and `cos(a)` converts your distance from the center into your height above the center. It's one when you are pointing straight to the edge and decreases when you angle towards the corner. 
 
 ```
