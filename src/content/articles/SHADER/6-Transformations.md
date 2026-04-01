@@ -25,7 +25,7 @@ p-center =(0.2-0.2,0.3-0.3) = (0.0,0.0)
 SDF receives (0.0,0.0) -> length(0.0) -> distance = 0.0-0.1 //Pixel inside circle
 ```
 So the pixel at (0.2,0.3) reports (0.0,0.0) to the SDF. It thinks it is at the origin (0.0,0.0) and the circle appears at (0.2,0.3).
-So when we subtract we move the shape in the positive direction and when we add we move it to the negative direction. The SDF doesn't know about the screen positions. It only cares about the numbers you pass into it. It just follows it's inherit rule draw my center wherever the passed coordinates are 0.0. It only sees and acts on the numbers we give it.  When we subtract(0.2,0.3) from the center we are sliding the entire coordinate system to the left by 0.2 and down by 0.3. The shape stays fixed at 0.0, but because the grid moved, the shape appears at a different position.
+So when we subtract we move the shape in the positive direction and when we add we move it to the negative direction. The SDF doesn't know about the screen positions. It only cares about the numbers you pass into it. It just follows it's inherit rule, draw my center wherever the passed coordinates are 0.0. It only sees and acts on the numbers we give it.  When we subtract(0.2,0.3) from the center we are sliding the entire coordinate system to the left by 0.2 and down by 0.3. The shape stays fixed at 0.0, but because the grid moved, the shape appears at a different position.
 
 ```glsl
 uniform vec2 u_resolution;
@@ -94,18 +94,63 @@ void main() {
 ```
 
 ## Scaling
-Scaling changes the size of shapes by stretching or compressing the coordinate system.
-To make shapes larger divide the coordinates and to make the shapes smaller multiply the coordinates.
+When we want to scale we follow the same pattern. We modify `p` before we feed it to the SDF. To make a shape twice as large you divide `p` by 2. Scaling changes the size of shapes by stretching or compressing the coordinate system.
 ```
-float scaleFactor = 2.0
-vec2 scaledUV = uv/scaleFactor;
-float d = circleSDF(scaledUV,vec2(0.0),0.2);
+float scale = 2.0;
+vec2 scaledUv = uv / scale;
+float d = circleSDF(scaledUV,0.1);
 ```
-When we divide the coordinates by 2, every coordinate become half its original value. 
 ```
-screen position(0.4,0.4) -> SDF Receives(0.2,0.0)
-screen position(0.6,0.2) -> SDF Receives(0.3,0.1)
+At pixel (0.2,0.0)
+p/2.0 = (0.1,0.0)
+the circle receives (0.1,0.0) -> length = 0.1 -> distance = 0.1-0.1 = 0.0
 ```
-From the SDF perspective everything appears closer to the origin than it actually is on the screen. The SDF thinks the point at the position(0.4,0.0) is only 0.2 units from the center.
+The pixel at 0.2 is on the edge of the shape, but with the unscaled version it would be at the edge at 0.1, The edge has moved outwards from 0.1 to 0.2 - the shape is twice as large. By dividing the value of the pixel position by for example two the pixel that are far from the origin now report to be closer. The SDFs worlds has shrunk so the shape looks bigger in screen space. 
 ![Scaling Transformations Img](/img/Shader/Scaling-Transformation.png)
 
+So the rule for scaling is *divide by `s` to scale up by `s` and multiply by `s` to scale down by `s`*.
+
+Important to notice is scaling breaks the distance field accuracy of your SDF. The distances that the SDF returns are in the scaled coordinate system, not the screen space. If you need accurate distances for outlines or shift shadows you must multiply the result of the SDF by the same scale factor to bring the distances back to screen space.
+```
+float scale = 2.0;
+vec2 scaledUv = uv/scale;
+float d = circleSDF(scaledUV,0.1)*2.0;
+```
+
+## Rotation
+To rotate shapes we need to apply some matrix math and use the following rotation formula:
+```
+vec2 rotate2d(vec2 p, float a){
+    float c = cos(a);
+    float s = sin(a);
+    return vec2(c*p.x+s*p.y,-s*p.x+c*p.y);
+}
+```
+This comes from:
+```
+|cos(a) sin(a)| *|p.x|
+|-sin(a) cos(a)| |p.y|
+```
+Let's assume we want to rotate our shape by 90°(a =PI/2) and we look at the position (1,0). For 90° we get `cos(PI/2)=0` and `sin(PI/2)=1`. If we pass that into the formula from above we get
+```
+new x = 0*1+1*0 = 0
+new y = -1*1 +0.0 = -1
+Result = (0,-1)
+```
+Again we have to remember that we are rotating the coordinate system, not the shape. If the coordinate system rotate 90° counterclockwise, a shape that was upright now appears rotated 90° clockwise.
+![Rotation Transformations Img](/img/Shader/RotationCoordinateSystem)
+So if you want to rotate the shape counter clockwise you negate the rotation angle.
+To rotate the shape over time around the origin we can use `u_time` and pass it as an angle into the rotation function.
+```
+float rotatedUV = rotate2d(uv,u_time);
+float d = rectSDF(rotatedUV,vec2(0.2,0.1));
+```
+To rotate around a different point you have to translate first and then rotate.
+```
+vec2 o = p-center;
+o = rotate(o,u_time);
+float d = rectSDF(o,vec2(0.2,0.1));
+```
+So the order matters. If you first translate and then rotate the shape gets rotated around the translated center. If you first rotate and then translate the shape orbits around the origin.
+
+## Repetition

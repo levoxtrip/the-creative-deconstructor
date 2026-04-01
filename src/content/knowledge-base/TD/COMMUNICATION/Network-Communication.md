@@ -1,8 +1,6 @@
 ---
 title: Network Communication
-comments: true
-tags:
- - TD/NETWORK
+tags: Network
 
 ---
 # Network Communication
