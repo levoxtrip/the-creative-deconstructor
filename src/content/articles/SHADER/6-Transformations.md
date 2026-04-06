@@ -153,4 +153,4 @@ float d = rectSDF(o,vec2(0.2,0.1));
 ```
 So the order matters. If you first translate and then rotate the shape gets rotated around the translated center. If you first rotate and then translate the shape orbits around the origin.
 
-## Repetition
+
