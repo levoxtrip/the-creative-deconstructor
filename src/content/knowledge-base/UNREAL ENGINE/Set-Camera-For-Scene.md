@@ -2,7 +2,7 @@
 title: Set Camera For Scene
 tag: Unreal
 ---
-# Set Settings For Scene
+# Set Camera Settings For Scene
 Go to the + and search for `Cinematic Camera Actor`. To specify which camera we use in our scene we need to adjust the level blueprint. Go to the blueprint menu and click on `Open Level Blueprint`.
 ![Define Startup Level Img](/img/Unreal/OpenLevelBlueprint.png)
 
@@ -14,8 +14,7 @@ To get the camera as a reference inside your blueprint select it in the Outliner
 To set the camera as the view in the editor click on the `Perspective` button and select your `Cinema Camera Actor`
 ![Cine Camera Actor In Editor Img](/img/Unreal/CineCameraActorInEditor.png)
 
-
-
+Another way is to create your own *PlayerController* blueprint assign there the camera like above and then assign your blueprint as the player controller in the game mode of you project.
 
 Example Settings for a camera:
 In the *Filmback* settings you can set your sensor width and height.
