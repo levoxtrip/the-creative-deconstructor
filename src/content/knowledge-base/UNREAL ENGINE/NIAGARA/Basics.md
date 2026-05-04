@@ -146,6 +146,14 @@ You can make your own scripts for niagara systems. In the content browser go to 
 ## Particle events
 You can link multiple emitter with each other by passing events from emitter to another. In one emitter you add *event* modules for *collision*,*death* or *location* event.
 
+`Death Event` Whenever something dies an event is send out. The event module needs to be positioned after the `Kill Particles` module. To make this work you need to set in the `Emitter Properties` `Requires Persistent IDs` to true. This forces you to simulate the niagara system on the CPU. 
+In the emitter that you want to use to react to the events you add a `Event Handler State` module. Then in it's properties you can assign the event. Set execution mode to `Spawned Particles` to make the emitter respond to the event. `Max Events` limits the amount of responses to the event that can happen. If e.g. 1000 particles die at the same time you might not want to react to the event 1000 times.
+`Spawn Number` sets the amount of particles that get spawn on the event.
+
+To spawn the particles at the `Death Event` you want to add `Receive Death Event` module to `Event Handler`. If you wan't to use the velocity that the particle had at the event add `Solve Forces and Velocity` to the particle update.
+
+`Location Event` sends through the location every single frame. It allows you for example to create one ermitter that only calculates the particles and then sends out the location to other emitters that differently render out the particles on their own.
+
 ## Scratch Pad
 In a scratch pad on the pins you can change the namespace to the desired part of the particle system.
 

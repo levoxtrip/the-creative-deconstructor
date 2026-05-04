@@ -28,3 +28,8 @@ fun into 8 categories
 8. Submission - relax and unwind
 
 Get playtester in your audience group.
+
+## 
+Find the core of the experience, what is going to motivate the player to take the next steps in the context of real rewards and payoffs they want to get.
+
+Focus on why the player wants to do things. Why do they want to do the next step, why do they want to collect the thing, 
