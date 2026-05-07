@@ -30,3 +30,40 @@ In the next step create `Animation Blueprint` and select `Vehicle Animation Inst
 
 ## Vehicle Blueprint
 The `Vehicle Blueprint` needs to be based on `Wheeled Vehicle Pawn`. For the mesh select the `Skeletal Mesh Asset`, assign the `Animation Blueprint` and tick `Simulate Physics`. Add `Spring Arm` and a `Camera` as it's child to the vehicle. Position the spring arm as you want and activate `Enable Camera Lag` at the camera component as well as `Use Pawn Control Rotation` for the spring arm.
+
+The `Wheeled Vehicle Pawn` contains a specific movement component `Vehicle Movement Component`. You need to add 4 wheel setups in the `Wheel Setups Array` of the detail page. There you set the previously created front wheel and read wheel. Next select bone name from the skeletal mesh to associate the wheel class with. The component is looking at the skeletal mesh, looks at skeletal and finds the wheel by name.
+
+Under mechanical setup you find engine settings where you can set your previously created torque curve or you set the curve directly there. 
+
+In differential setup you can define the amount of wheels that power the car. Under transmission you can define how and when the gears get changed.
+
+## Setup Inputs for car
+To setup inputs for our car we need to create `Input Actions` in the content browser. In their value type you define the kind of value you need.
+`bool` - on/off
+`float` - pressure sensitive
+`vector2d/3d` - x/y/z
+
+These `Input Actions` need to be associated with key bindings in an `Input Mapping Context`, which you can create in the content browser. In there you assign the input action map to the keys, button.
+
+## Apply Movement
+To apply the mapping context to the vehicle blueprint add the mapping context to it.
+![Add Mapping Context To Controller Img](/img/Unreal/AddMappingContextToController.png)
+Now we can interpret the input actions. 
+
+We get for the input actions events in the blueprint that we can use to set controller yaw and controller pitch.
+![Enhanced Input Look Img](/img/Unreal/EnhancedInputLook.png)
+
+The vehicle movement component has different functions to apply movement to the vehicle like `Set Steering Input`,`Set Handbreak Input` etc. It also has dedicated functions for shifting the gears if you have this set manually.
+
+![Enhanced Input Throttle Break Img](/img/Unreal/EnhancedInputThrottleBreak.png)
+
+Use the `Triggered` event and the `Completed` events from the Input actions to get start and stop signals from the inputs.
+
+![Enhanced Input Break Steering Img](/img/Unreal/EnhancedInputBreakSteering.png)
+
+In the vehicle movement controller details also set the size of your vehicle.
+
+To get only front wheel steering, go to the vehicle movement component and set `Differential Type` to `Rear Wheel Drive`. In the `Rear Wheel` blueprint uncheck `Affected By Steering`.
+
+## Set Actor As Default Pawn
+Create a `GameMode` and set in it's details your vehicle pawn blueprint as the default pawn.

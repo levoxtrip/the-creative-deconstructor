@@ -28,7 +28,11 @@ With `F` you can focus on an object in your scene.
 
 To reset the layout go to `Window/Load Layout/Default Editor Layout`.
 
-You also can create multiple viewports under `Window`
+You also can create multiple viewports under `Window`.
+
+The viewport has different view modes of the scene. The default is perspective, but you also can switch to orthographic views like Top,Left, etc.
+
+![alt text](image.png)
 
 ## Play in Editor
 With `Alt+P` you can start Play in editor mode and with `Escape` you stop.
@@ -38,7 +42,11 @@ With `Shift+F1` you can jump out of the PIE to get your mouse while the mode is 
 The default pawn is what you are controlling in the PIE mode. With `F8` you can detach from the player controller in play mode.
 
 ## Manipulating Objects
+An object considers it's own x direction to be *forward*, y direction is it's *right* direction and z direction is *up*.
 
+Actors have their own local rotation. In the viewport you can switch between local and global coordinates. To change local rotation of a mesh of an actor create a `Scene Component` as the root and rotate it there.
+
+![Local vs Global Coordinates Img](/img/Unreal/LocalGlobalCoords.png)
 `Q` - to select object
 `W` - translate object. With shift hold down camera moves with you while translating
 `E` - rotate object
@@ -49,6 +57,33 @@ In the viewport you have multiple options to decide how the translations should 
 ![Viewport Snapping Img](/img/Unreal/SnappingSettings.png)
 
 The lock icon in the details panel allows that the change gets applied proportionally on other axis.
+
+![Grid Icon Top Img](/img/Unreal/GridIconTop.png)
+The grid icon on the top right also allows you to have multiple perspective views in your viewport.
+
+Next to it is the `Lit` button which lets you change the lighting mode in the viewport. `Unlit` let's you see objects in the dark.
+
+`F11` - fullscreen viewport.
+
+## Finding Files from the scene
+You can find the relating files from your objects in the scene by clicking on the object in the scene or the *Outliner* and hit `ctrl+b`. Another way is to right click the object and select `Browse To Asset`.
+
+
+## Static Meshes
+In the static mesh viewport you can navigate with:
+`alt + left click` - rotate around
+`alt + right click` - zoom in/out
+
+Unreal translates imported fbx to *uasset* datatype.
+
+When you import a fbx into unreal make sure that the scaling of the fbx is already how you want it in your game. Additional scaling of your mesh cause extra necessary calculations by the engine and could affect performance. Scale up the mesh when you input the fbx into unreal by changing the `Import Uniform Scale` in the import settings. The import settings also allow you to *not* create a default material. Go to `Material Import Method` and select `Do Not Create`.
+
+## Migrating Assets
+When you want to migrate assets you only can migrate it to the content folder of another project. Besides single files you also can migrate whole folder.
+
+## Programming
+In unreal you can program in c++ or blueprints. C++ is more performant and you have more access to the code base.
+
 
 # Movement
 To move objects relative in Unreal you can position one actor inside another in the hierarchy.
