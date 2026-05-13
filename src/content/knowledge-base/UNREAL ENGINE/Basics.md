@@ -78,16 +78,28 @@ Unreal translates imported fbx to *uasset* datatype.
 
 When you import a fbx into unreal make sure that the scaling of the fbx is already how you want it in your game. Additional scaling of your mesh cause extra necessary calculations by the engine and could affect performance. Scale up the mesh when you input the fbx into unreal by changing the `Import Uniform Scale` in the import settings. The import settings also allow you to *not* create a default material. Go to `Material Import Method` and select `Do Not Create`.
 
+### Modeling Mode
+With `Shift+5` you can access unreal's modeling mode where you are able to create a mesh. In the `Xform` menu you can change the pivot of your mesh.
+
 ## Migrating Assets
 When you want to migrate assets you only can migrate it to the content folder of another project. Besides single files you also can migrate whole folder.
 
 ## Programming
 In unreal you can program in c++ or blueprints. C++ is more performant and you have more access to the code base.
 
+### Actors
+Everything that can be placed or spawned into a scene has to be at least an actor. `Pawn` class inherits from `Actor` class. `Pawn` class can be possessed, something aan `Actor` can't. `Actor` is parent class of `Pawn`.
 
+#### Components
+The `Actor` blueprint is capable to have components. All actors need to have at least one component, by default the `Default Scene Root` component. The `Root` is the origin point of the actor.
+To add a mesh to the blueprint you need to add it as a component to the class. Add a static mesh component which allows you to assign the mesh you want to use. The static mesh component also can be the root of the blueprint, instead of the `Default Scene Root`.
+
+
+In the `Details` panel of an actor you can set the initial life span. `0.0` means forever
 # Movement
 To move objects relative in Unreal you can position one actor inside another in the hierarchy.
 
+`Movement` component is designed to move the actor it is belonging to. There are different types of movement components like `Projectile Movement Component`.
 # Pawn
 To set your own pawn instead of the default one you can create you own pawn blueprint and then create your own game mode where you assign that custom pawn. Then in the project settings under Maps & Modes you assign your custom game mode.
 

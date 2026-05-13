@@ -27,12 +27,9 @@ Use a `Get Player Controller` node and connect it with `Convert Mouse Position T
 To detect if the mouse hit an object in your scene you can use a `Line Trace For Objects` node, which creates a line that is perpendicular to the plane of the camera. Connected with a `Convert Mouse Position To World Space` this line goes like a laser trough the point of the mouse. It shoots from the mouse and checks where it hits an object/actor. You then need to use a `Break Hit Result` to get the hit actor and cast it to the blueprint class of the object the ray hit.
 ![LineTrace For Objects From Mouse Img](/img/Unreal/LineTraceForObjectsFromMouse.png)
 
-
-
-
 ## Create Action Mapping for Input Evenet
 In the *Project Settings* you can map and input event and create an event for your blueprint for it. Go to the *Input* category and add you action mapping by assigning the key/mouse event. You then can use this event in your blueprints.
-![Action Mapping Img](/img/Unreal/CreateActionMapping.pngg)
+![Action Mapping Img](/img/Unreal/CreateActionMapping.png)
 
 
 ## Show Mouse Cursor in the Scene

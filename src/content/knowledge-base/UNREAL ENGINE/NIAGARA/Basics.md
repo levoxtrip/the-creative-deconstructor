@@ -3,20 +3,22 @@ title: Niagara Basics
 tag: Unreal Niagara
 ---
 # Niagara Basics
-
-A *Niagara System* is what yo physically place into the world of your game. A *Niagara Emitter* is part of the system. It can't be put in the world by itself.
+Niagara is the VFC system in Unreal. 
+A *Niagara System* is a collection of emitters which yo physically place into the world of your game. A *Niagara Emitter* is it's own object as a part of the system. It can't be put in the world by itself.
 
 Under *Learning Content* you can find particle systems with explanations.
 
-A *Niagara System* can have multiple emitters - they coexist in the system.  An emitter is build up out of single modules - each module acts like a function - a little bit code that gets executed.
+A *Niagara System* can have multiple emitters - they coexist in the system. An emitter is build up out of single modules - each module acts like a function - a little bit code that gets executed.
+
+In the Niagara graph you also have a `Niagara Overview Node` which contains properties which apply to the whole system.
 
 `Emitter Spawn` only runs once when the emitter is spawn - like `BeginPlay`. It is used to set values that stay consistent for the entire lifetime of the emitter. 
 
-`Emitter Update` own update loop(`Event Tick`) that allows to spawn particles. You put spawner modules in there like `Spawn Rate` or `Spawn Burst Instantaneous`.
+`Emitter Update` has own update loop(`Event Tick`) that allows to spawn particles. You put spawner modules in there like `Spawn Rate` or `Spawn Burst Instantaneous`.
 ![Spawning Modules Img](/img/Unreal/SpawnerModules.png)
 
 Like the emitter each individual particle has their own `Particle Spawn` and `Particle Update`. 
-`Particle Spawn` runs once for every particle and `Particle Update` every tick of your system.
+`Particle Spawn` runs once for every particle and `Particle Update` every tick of your system. In `Particle Spawn` we set things for when the particle is first spawn. In *update* we have modules that are acting on the particle every frame.
 
 Emitter Spawn vs. Particle Spawn example:
 If you have a random value in `Emitter Spawn` it will always be consistently the same until you spawn another system which then will have another value. For `Particle Spawn` every particle that get spawned will have their own new random value.
@@ -52,6 +54,10 @@ Rule of thumb is *Lots of particles GPU - Accurate Particles CPU*
 Add an `Add Velocity` in `Particle Spawn` to give the particles a direction to move along. If you use instead of a constant vector value a `Random Range Vector` or `Set Random Vector` for the parameter you can let them spread out in different directions.
 ![Particle Spawn In Random Direction Img](/img/Unreal/ParticleSpawnInRandomDirection.png)
 
+## Rotate particles towards movement
+If you want to rotate your particles towards their own velocity go to the renderer and set `Alignment` to `Velocity Aligned`
+
+
 ## Spawn particles inside a shape
 The `Shape Location Module` inside `Particle Spawn` allows you to let particles be born inside a shape. Depending on the shapes you can spawn them at random positions inside the shape, you can select `Direct` to define where on the shape you want to spawn the particles. `Uniform` spawns the particles evenly spread across the shape.
 
@@ -71,6 +77,7 @@ If you want to change the color of a particle over time you can add `Scale Color
 ![Change Color Over Lifetime By Age Img](/img/Unreal/ChangeColorOverLifetime.png)
 If you want to map the color to the velocity of the particle you can use `Velocity` parameter of the particle for the `CurveIndex`.
 ![Change Color Over Lifetime By Velocity Img](/img/Unreal/ParticleVelocityAssignedToColor.png)
+To fade out the particle over time use `Scale Color` with `Scale Mode` `RGB and Alpha Separetly`. Then for the `Scale Alpha` value use a `Float from Curve`. This lets the alpha decrease over the age of the particle.
 
 ## Scale Particle Size
 To scale the size of the particles over time add a `Scale Sprite Size`/`Scale Mesh Size` to `Particle Update`. You get a curve - on it's y axis you have the size value and on the x the normalized age of the particle. Make sure that in `Initialize Particle` the sprite size is not `Unset`. In the `Scale Sprite Size` the particle gets scaled based on what the initial size when spawned was. The curve is a percentage of the initial particle size.
@@ -132,6 +139,9 @@ Any attribute that you can change in your system has a down arrow where you can 
 
 To set user parameters via a blueprint you use a `Set Float Parameter` or `Set Color Parameter` node in the blueprint depending on the datatype of the user parameter.
 ![Set User Parameter Via Blueprint Img](/img/Unreal/SetParameterViaBlueprint.png)
+
+## Spawn Niagara System from Blueprint
+With `Spawn System at Location` we can spawn a niagara system with a blueprint.
 
 ## Value calculations
 We can execute complex calculations in the parameter fields of the details panel. 
@@ -202,3 +212,9 @@ With `Kill Particle In Volume` you can destroy particles when they are inside a 
 
 ## Deactivate That Particles Die
 In particle state you can deactivate that the particle get killed when their lifetime has elapsed.
+
+## Isolate Emitter in View
+If you have multiple emitter in your system and you only want to see one in the view you can isolate the emitter by clicking the small mannequin icon at the top of the emitter.
+
+## Details in Niagara
+To create more complex and detailed systems use multiple emitter and very their settings like less particles with different color for the details, different particle sizes, different shape location sizes etc.

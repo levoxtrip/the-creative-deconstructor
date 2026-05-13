@@ -47,6 +47,6 @@ The meshes hav a material slot where you can assign the material. You also can d
 In a blueprint you can use a `Set Material` node and pick your material.
 
 ## Glow up on interaction
-You make a material and then you create a parameter for `Emit color` and `Emit amount`. You multiply the color with the amount and then plug into the `Emissive Color. In a blueprint you change the emit amount of the color.
+You make a material and then you create a parameter for `Emit color` and `Emit amount`. You multiply the color with the amount(e.g 30/40) and then plug into the `Emissive Color. In a blueprint you change the emit amount of the color.
 
 
