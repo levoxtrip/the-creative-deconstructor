@@ -75,12 +75,15 @@ If you want the single components of a `Transform` type you can use a `Break Tra
 
 Color data type in blueprints is `Linear Color` structure.
 
+## Type Check
+To check if passed object is of inherits from class type use a `IsA` node. It lets you check if an object is a specific class.
+
 ## Level blueprint
 The level blueprint is tied to only the level. 
 
 Blueprint classes can be used in all levels.
 
-Every level blueprint is an actor thatz owns the level blueprint and is able to reference instances of other actors in the level
+Every level blueprint is an actor that owns the level blueprint and is able to reference instances of other actors in the level
 
 ## Translation
 To get the location of the actor `Get Actor Location`
@@ -94,6 +97,9 @@ We have a `Is Valid` node which let's you check if variable is properly assigned
 
 ## Spawning Actors At Runtime
 With `Spawn Actor From Class` you can spawn specific actors depending on some logic. The `Begin Play` node of a spawned actor gets fired when the actor is being born in the scene.
+
+### Set a variable in spawned Actor on spawn
+To be able to set a variable inside a blueprint that get's spawned from another blueprint you need to set the variable `Instance Editable` and `Expose On Spawn`. This allows you to pass the value from the spawning BP to the spawned one.
 
 ## Destroy Actor
 With `Destroy Actor` you can remove an actor from your scene at runtime.
@@ -116,9 +122,11 @@ To alternate execution calls you can use a `FlipFlop` node. First it executes `A
 
 ## Animation
 
-`Timeline` node is a keyframe generator. Double click the node to make your own keyframe animation. For a single value animation you can create a float track. With shift click you can create keyframes. Activate `Use last Keyframe`.
+`Timeline` node is a keyframe generator. With `Add Timeline`you can create a timeline in your blueprint. Double click the node to make your own keyframe animation. A Timeline requires a track. Under length we define how long the timeline should be. When the timeline is played it outputs a value which is defined by the curve/track in the timeline. To make a curve we need to add keys by right clicking into the timeline. A keyframe has a time and a value variable. If your right click on the keys you can change the interpolation type between the keyframes. `Auto` converts linear to curve. For a single value animation you can create a float track. With shift click you can create keyframes. Activate `Use last Keyframe`.
 
-To create non linear animation between keyframes right click keyframe and set it to auto. After shaping your animation graph you can use the float track outside the timeline node.
+While the timeline is playing the `Update` output is executed every frame. When finished, `Finished` is executed once and `Update` is stopped.
+
+For Vector tracks you create the curve for every component of the vector.
 
 ## Interpolate Values
 To interpolate `Rotator`,`Vector` or `Float` you can use the interpolation nodes `RInterp`,`VInterp`,`Finterp`. The higher the `Interp Speed` the faster it moves towards the target.
@@ -130,6 +138,34 @@ The `Delay` node allows you to delay the flow of execution of the wire.
 ## Events
 ### Add Inputs to custom event
 Click on your custom event and then in the details panel on the right click on the `+` of the *Inputs* category. Then select the datatype you need.
+
+
+## Collisions
+
+
+To get a hit event when your mesh collides with the environment it needs collision information. Generally you don't use your mesh for collision but a more primitive shape that is less computational intensive. To see the collision geometry go to the static mesh `show(eye icon), complex/simple collisions`.
+
+Under `Collision` in the tab bar you can add a collision shape to your mesh. In the Details set the `Collision Complexity` to use `Simple Collision As Complex` - otherwise the mesh doesn't use the simplified collision body.
+
+Make sure you don't spawn your bullets with collision inside another actor with collisions otherwise they directly collide when spawned. The colliding bodies shouldn't overlap.
+
+You then can use in your Blueprint `On Component Hit` event. With `Assign On Component Hit` you get a node that allows us to bind the event to `On Component Hit`, which is called whenever the mesh hits something.
+
+`On Component Hit` event has:
+`Hit Component` - component that hit something
+`Other Actor` - Actor that got hit
+`Other Component` - Component that got hit.
+
+To get the location of where the hit occurred you can use the hit output of your `On Component Hit`, use a `Break` and it gives you a lof of information contained in the hit event.
+
+![Breaking up the hit event Img](/img/Unreal/HitEventBreak.png)
+`Impact Point` in the `Hit Event` gives us the location where they collided.
+`Normal` gives you the vector that sticks out of the surface to for example rotate the collision particle towards. After the collision you can destroy the bullet actor.
+
+### Bullets
+If you want to trigger some logic when a bullet or beam hits another object you execute it in the bullet blueprint. For Bullets you want to know if that bullet hits the *player* or *target*. Give the bullet a variable of `target` or `target pawn`. And every time you spawn a bullet you set it's target pawn to for example the player itself. 
+
+To check if our pawn is hit we take the `Hit Actor` from `On Component Hit` event and compare it with the target pawn variable.
 
 ## Logic
 When you hold down b and left click into the event graph you can get a `Branch` node.
@@ -146,7 +182,11 @@ With `Get Materials` you can get an array of materials that your actor has.
 
 `Set Actor Location` sets the actors position
 
-`Add Actor World Rotation` add rotation to current actor rotation. It acts on the actors scene component.
+`Add Relative Location` or `Add World Offset` add to the current actor location.
+
+`Add Actor World Rotation` adds rotation to current actor rotation. It acts on the actors scene component so not about the local space but world space.
+
+You can create a random rotation with `Random Rotator`
 
 If you want to reposition your actors on runtime you have to set them movable. In *Details -> Transform -> Mobility*.
 
@@ -159,6 +199,8 @@ With `Vector Length` node you can get the magnitude of a vector.
 
 `Normalize` node allows to normalize a vector. The `Tolerance` defines at which value it returns 0.
 
+With `++` node you can increment a value by 1.
+
 ## Control Command
 With `Execute Console Command` you can even run certain commands in the console from your blueprint.
 
@@ -168,3 +210,19 @@ With `Execute Console Command` you can even run certain commands in the console 
 With the `Get` node we can pick an elements from an array.
 
 With `Is Valid Index` connected to a `Branch` you can make sure that a loop is only executed if that index exists in the array.
+
+## Change speed of game
+Use `Set Global Time Diliation`. 0.0 means pause time. 1.0 means normal time.	
+
+## End Game
+With `Quite Game` you can end the game in a Blueprint.
+
+## Game Mode
+We always can access the game mode from any class with `Get Game Mode`
+
+If you want to call a function owned by the game made inside another blueprint you need to *cast* from the parent type Game mode to your specific game mode class. *Casting* is converting one datatype into another and only continues when the object is an object of that data type you are casting to.
+
+## Class Settings
+Under `Class Settings` we can see what that class is based on/what the parent class is.
+
+![Breaking up the hit event Img](/img/Unreal/ClassSettings.png)

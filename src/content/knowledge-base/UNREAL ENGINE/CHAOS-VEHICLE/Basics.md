@@ -65,5 +65,8 @@ In the vehicle movement controller details also set the size of your vehicle.
 
 To get only front wheel steering, go to the vehicle movement component and set `Differential Type` to `Rear Wheel Drive`. In the `Rear Wheel` blueprint uncheck `Affected By Steering`.
 
+## Reset Car
+To reset your car with 0 movement speed and forces use `Set Actor Location` to your desired location and set `Teleport` to `true`. Then connect `Set Physics Velocity` and `Set Physics Angular Velocity`.
+
 ## Set Actor As Default Pawn
 Create a `GameMode` and set in it's details your vehicle pawn blueprint as the default pawn.

@@ -26,13 +26,17 @@ On the camera icon you can set the camera speed.
 
 With `F` you can focus on an object in your scene.
 
+`G` hides the gizmos of the scene.
+
+`F11` for full screen view.
+
 To reset the layout go to `Window/Load Layout/Default Editor Layout`.
 
 You also can create multiple viewports under `Window`.
 
 The viewport has different view modes of the scene. The default is perspective, but you also can switch to orthographic views like Top,Left, etc.
 
-![alt text](image.png)
+You also can bookmark views when you like a specific camera position and want to go back to it after you moved. `Ctrl +1` `Ctrl+2` etc. Then with `1`,`2` you can jump to that camera position.
 
 ## Play in Editor
 With `Alt+P` you can start Play in editor mode and with `Escape` you stop.
@@ -67,7 +71,6 @@ Next to it is the `Lit` button which lets you change the lighting mode in the vi
 
 ## Finding Files from the scene
 You can find the relating files from your objects in the scene by clicking on the object in the scene or the *Outliner* and hit `ctrl+b`. Another way is to right click the object and select `Browse To Asset`.
-
 
 ## Static Meshes
 In the static mesh viewport you can navigate with:
