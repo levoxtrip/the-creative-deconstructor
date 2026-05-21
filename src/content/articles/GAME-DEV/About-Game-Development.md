@@ -9,7 +9,7 @@ All good games provide wish fulfillment. They should make players feel something
 
 Make the player wish to be the character or to live in that world.
 
-Mechanics, Dynamics, Aestethics
+Mechanics, Dynamics, Aesthetics
 
 Mechanics - particular components of the game, at the level of data representation and algorithms
 
@@ -24,10 +24,10 @@ fun into 8 categories
 4. Fantasy - player gets to imagined they are a character in that world
 5. Narrative - strong story that makes player come back
 6. Discovery - finding collectives, items, other 
-7. Expression - where player get to express themselves through customisation
+7. Expression - where player get to express themselves through customization
 8. Submission - relax and unwind
 
-Get playtester in your audience group.
+Get play tester in your audience group.
 
 ## 
 Find the core of the experience, what is going to motivate the player to take the next steps in the context of real rewards and payoffs they want to get.
