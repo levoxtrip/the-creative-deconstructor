@@ -11,3 +11,4 @@ You take the *overlapping components* of the collision shape and check for each 
 To create a force that is pointing to the center of the collision component you need to create a vector that points to the center of the collision shape.
 
 ![Attraction Force Well Img](/img/Unreal/AttractionForceWell.png)
+

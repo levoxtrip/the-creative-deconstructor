@@ -290,6 +290,13 @@ You could then in a `MathCombine` take the color attributes and differently blen
 When you normalize only one component like P(1) we still have to select `Box X` instead of `Box Y` or `Box Z` because the y is the only component passed to be affected so it's treated as the first component/x.
 ![Normalizing Single Component Img](/img/TD/Normalizing-Single-Component.png)
 
+### RayPop
+Calculates the collision of rays on the surface of another pop.
+You want the normals of the ray to face the surface.
+RayPop works on triangles and quads. It needs a surface to bounce of.
+
+`Point Intersection Distance` is the distance between point that is coming in and the collision object.
+
 ### RevolvePOP
 Allows to convert a linestrip into a surface of revolution.
 

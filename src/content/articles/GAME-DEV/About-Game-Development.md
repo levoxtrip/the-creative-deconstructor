@@ -33,3 +33,25 @@ Get play tester in your audience group.
 Find the core of the experience, what is going to motivate the player to take the next steps in the context of real rewards and payoffs they want to get.
 
 Focus on why the player wants to do things. Why do they want to do the next step, why do they want to collect the thing, 
+
+## Game feel
+Game needs to feel alive, responsive, pop and crack, electric
+
+How does the game feel when you strip away the points, the story, the graphics, the music, the clever level design - is your game still fun to interact with
+
+Example: Super mario
+The plumber such a fun avatar to control - with bouncy jump, wall kicks, stomach dives
+
+Levels let player express their movement and challenge them master the underlying moveset
+
+### FX
+Screen shake - when you fire a gun or hit an enemy
+Pause the game for a split second when you hit and kill an enemy - to make it more impactful -
+ making clear that you are damaging an enemy - make enemy get knocked back, particle animation, satisfying sound
+ Make character be part of the world - loud (randomised) sound effects, dust
+Be creative with your camera - camera frames the action
+Make stuff big!!!
+
+Permanence - show what you did before and leave it in the game so you see what you already achieved
+
+Juice - doubling down on what you game is about - if it is about shooting then make the guns kick
