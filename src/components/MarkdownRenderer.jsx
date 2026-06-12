@@ -168,6 +168,16 @@ code: ({ node, inline, className, children, ...props }) => {
     </code>
   )
 },
+video: ({ src, controls, width, ...props }) => {
+  return (
+    <video
+      controls={controls}
+      width={width || '100%'}
+      style={{ borderRadius: '8px' }}
+      {...props}
+    />
+  )
+},
 
 // Add pre handler
 pre: ({ children, ...props }) => {
