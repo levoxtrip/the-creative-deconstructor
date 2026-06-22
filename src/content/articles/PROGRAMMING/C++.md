@@ -145,3 +145,193 @@ Comments should be used to describe why the code is doing something.
 Write your comments as if speaking to someone who has no idea what the code does.
 
 # Introduction to objects and variables
+## Data and values
+Programs generate results by reading, changing and writing data. So programs are *instructions that manipulate data to produce a desired result*. It can get that data from for example a database, files, user inputs, another program etc.
+
+A single piece of data is called a `value` like numbers `2`,characters `'e'` or text `"World"`. 
+Values placed in single-quotes are interpreted as *character* values
+Values placed in double-quotes are interpreted as *text* values.
+
+Values that are placed directly into the code are called *literals*
+```C++
+#include <iostream>
+
+int main(){
+	std::cout <<9; // print the literal `9`
+	std::cout <<'H'// print the literal character H
+	std::cout <<"Text" // print the literal text "Text"
+
+}
+```
+
+## Random Access Memory(RAM)
+*Random Access Memory* is the main memory in a computer. When we run a program the OS loads the program into RAM. Any data that is hardcoded into the program itself is *loaded at this point*. The OS also reserves some extra memory for the program to use while running for example to store values entered from the user, to store data read in from a file or to store calculated values while the program runs so they can be used later.
+
+RAM is like a series of numbered boxes that gets used to store data at runtime.
+
+## Objects and Variables
+In C++ we access memory through an object. An *object* represents a region of storage(RAM or CPU register) that can hold a value. You say *go get the value stored by this object* and the compiler figures out where and how to retrieve the values.
+
+An object with a name is called a *variable*.
+
+`An object is used to store a value in memory. A variable is an object that has a name(identifier)`.
+
+To define a variable
+`int x; // defining the variable of type int with the name x`
+
+At compile-time the compiler makes a note to itself that we want a variable with the name `x` and the data type `int`, then the compiler knows when we use `x` that we are talking about that variable. The compiler handles all the details about the variable for us, including determining how much memory the object will need, what kind of storage the object will be placed, when it will be created and destroyed, etc.
+
+## Variable creation
+Each object is given an actual storage location *at runtime*. The process of reserving storage for an objects use is called *allocation*. Once allocated the object can be used.
+
+## Data types
+A `data type` defines what kind of value the object will store.
+
+*integer* is a number that can be written without a fractional part like `6,123,4333,-10`. An *integer* variable only can hold *integer* values.
+
+The data type of an object must be known at compile-time.
+
+It is possible to define multiple variables of the same type in a single line.
+`int a,b;`
+
+## Variable assignment and initialization
+After a variable got defined, we can give it a value with `=` operator. This is called *assignment*.
+```C++
+int height;
+height = 10;
+```
+We also can use assignment to change the value of variable
+
+```C++
+int height;
+height = 10;
+std::cout << height;
+height= 20;
+std::cout << height;
+```
+
+*Variable initialization*
+When an object is defined we can provide an intial value for it. This is called *initialization*.
+`int height {10};`
+
+Initialization is quite complex in C++. There are different common ways to initialize.
+
+```C++
+
+int a;//default initialization
+
+int b = 5;//copy-initialization (initial value after =)
+int c (6); //direct-initialization
+
+//Modern initialization forms
+int d {9}; // direct-list-initialization
+int e {}; // value-initialization
+
+```
+*default initialization*
+leaves the variable with an indeterminate value
+
+*copy initialization*
+Copies the value on the right side of the equals into the variable on the left.
+It is less efficient than other forms of initialization for complex types.
+
+*direct initialization*
+Was introduced to allow more efficient initialization of complex objects. But got out of favor in modern C++ because of being superseded by direct-list initialization.
+
+*List-initialization*
+The modern way of initialize objects in C++.
+```C++
+int a {5};
+int b = {6};
+```
+
+They don't allow *narrowing conversions*. 
+So you couldn't enter a number with a fractional part in the initialization
+```C++
+int a1{4.5}; // causes a compile error: list-init does not allow it
+
+int a2 = 4.5; // compiles: to value 4
+int a3 (4.5); // compiles to value 4
+```
+
+Be aware that the blocking of *narrowing conversions* is just on the initialization., not to any following assignments to the variable
+
+```C++
+
+int w1 {4.5}; // compile error
+
+w1 = 4.5; // is okay -> value 4
+```
+
+## Value-initialization and zero-initialization
+When a variable is initialized using empty set of braces *value-initialization* takes places. It will implicitly initialize a variable with the value 0 or what is closest to zero for the type. This is called *zero-initialization*
+`int width {};` results into value 0 
+
+## List-initialization is preferred initialization form
+List-initialization is generally the preferred initialization form.
+
+## Initialize your variables
+Initialize your variables upon creation.
+
+## Instantiation
+It is called *instantiation* when a variable has been created and initialized. Instantiated object is sometimes called instance. Often this term applies for class type objects.
+
+## [[maybe_unused]] attribute
+The `[[maybe_unused]]` attribute allows to tell the compiler that we're okay with a variable being unused. It will then not generate unused variable warnings.
+
+```C++
+
+[[maybe_unused]] double pi {3.14159}
+```
+The compiler will also optimize these variable out of the program, so they don't have any performance impact.
+
+# Introduction to iostream
+The *Input/output library* is part of the C++ Standard library that deals with output and basic input. It is used to get inputs from the keyboard or output information to the console.
+
+To use the library you need to include `iostream` header at the top of your code file.
+```C++
+#include <iostream>
+```
+
+## std::cout
+*std::cout* allows us to send data to the console to be printed as text. *cout* stands for *character out*.
+```C++
+#include <iostream>
+
+int main(){
+	int x{5};
+	std::cout << "Hello World";
+	std::cout << 4;
+	std::cout << x;
+	return 0;
+
+}
+```
+`<<` is the *insertion operator*. To print more than one thing on the same line, you can used another `<<` to link together multiple pieces of output. You can think of `<<` as a conveyor belt that moves data in the direction it indicates.
+
+```C++
+#include <iostream>
+
+void main(){
+	int x {5};
+	std::cout << "hello" << " world";
+	std::cout << "X is equal to: " << x;
+	return 0;
+
+}
+```
+
+## std::endl
+With `std::endl` we tell the console to move the cursor to the next line.
+
+```C++
+#include <iostream>
+
+void main(){
+	std::cout << "Hello" << std::endl;
+	std::cout << "World";
+	return 0;
+}
+```
+
+## Buffered std:cout
