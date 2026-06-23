@@ -335,3 +335,56 @@ void main(){
 ```
 
 ## Buffered std:cout
+When `std:cout` is called the computer collects your output in a temporary area in memory called the *buffer*. So output "gets in line" first, waits in the buffer, and only reaches the console when the buffer is flushed.
+
+The opposite of buffered output is unbuffered output. For unbuffered output each individual output request is sent directly to the output device.
+
+Writing data to a buffer is fast, but transferring a batch of data to an output device is relatively slow. So buffering can increase the performance by batching multiple output requests together to minimize the amount of times output gets send.
+
+## std::endl vs \n
+`std::endl` is quite slow because it outputs a new line and it flushes the buffer. To output a new line without flushing the output buffer, we can use `\n`. It moves the cursor to the next line of the console.
+```C++
+#include <iostream>
+
+int main(){
+	int x{5};
+	std::cout << "x is equal to " << x << '\n';
+	std::cout << " Yes that is true";
+	return 0;
+}
+```
+
+## std::cin
+`std::cin` reads input from the keyboard. To put the input data into a variable you can use `>>` the extraction operator.
+```C++
+#include <iostream>
+
+int main()
+{
+	std::cout << "Please enter a number:";
+
+	int x{};
+	std::cin >> x; //Get number from keyboard and store in variable x
+
+	std::cout << "You entered" << x << '\n';
+	return 0;
+
+}
+```
+We also can output multiple numbers in a single line.
+```C++
+#include <iostream>
+
+int main(){
+	std::cout << "Please enter two numbers seperated by space:";
+	int x{};
+	int y{};
+	std::cin >> x >> y;
+
+	std::cout << "You entered " << x << " and " << y << '\n';
+
+	return 0;
+}
+```
+
+### std::cin is buffered
