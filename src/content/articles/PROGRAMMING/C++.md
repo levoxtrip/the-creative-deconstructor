@@ -388,3 +388,42 @@ int main(){
 ```
 
 ### std::cin is buffered
+`std::cin` is buffered because it allows us to separate the entering of input from the extract of input. We input data only once and then perform multiple extractions on it.
+
+## Uninitialized Variables
+C++ does not automatically initialize most variables to a given value like 0. A variable that has not been given a known value is called *uninitialized variable*.
+
+*initialized* -> object is given known value at point of definition
+*assignment* -> object is given known value after point of definition
+*uninitialized* -> object has not been given a know value yet
+
+## Undefined behavior
+*Undefined behavior* is executing code whose behavior is not well-defined by C++.
+
+It may exhibit following symptoms:
+- program produced different result every time it is run.
+- program produces the sme incorrect result
+- program behaves inconsistently
+- program crashes
+- etc
+
+## Keywords
+C++ reserves 92 words for its own use so you can't use them for your variables or functions.
+
+## Identifier naming rules
+Identifier are the names of variables, functions or other items.
+Identifier can not be a keyword.
+Identifier can only be composed of letters, numbers and underscore character.
+Identifier must begin with a letter or an underscore.
+C++ is case sensitive.
+
+## Identifier naming best practices
+Variables and functions should begin with lowercase letter.
+
+`int value;`
+
+`int my_variable_name`
+`int myVariableName`
+
+## Whitespace
+C++ is whitespace independent
