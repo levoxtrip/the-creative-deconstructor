@@ -426,4 +426,26 @@ Variables and functions should begin with lowercase letter.
 `int myVariableName`
 
 ## Whitespace
-C++ is whitespace independent
+C++ is whitespace independent, it does not enforce any kind of formatting restrictions on the programmer.
+
+# Introduction to literals and operators
+
+## Literals
+A *literal constant* is a fixed value that has ben inserted directly into the source code. The value of a literal is fixed and cannot be changed. A literals value is placed directly in the executable which can't be changed after it is created. A variable's value is place in memory and the value of memory can be changed while the executable is running.
+
+So literals are inserted directly in to the source code and its value appear directly in the executable code. 
+Objects and variable represent memory locations that hold values. These can be fetched on demand.
+
+## Operators
+`2 + 3`
+Operators take values in and produce an out value. You give the operation some values and it does something with them and the result is itself a value. The values you give an operator are called *operands* and `+` is the operator which produces the return value.
+
+Familiar operators are `+,-,*,/`. Other operators are `=`(assignment), `==`(equality), `<<`(insertion), `>>` extraction.
+
+Every operator falls into one of four groups based on how many operands it takes. `unary` one operand, `binary` two operands, `ternary` three and `nullary` none.
+
+### Chaining operators
+The arithmetic operators execute in the same order as they do in standard mathematics: Parenthesis first, then exponents, then multiplication & division, then addition and subtraction.
+
+
+# Introduction to expressions
