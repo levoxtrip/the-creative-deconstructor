@@ -53,6 +53,7 @@ For example `Primitive Type` Line Strip and then you select a pattern like [*:50
 #### Convert primitive types
 With the `ConvertPOP` you  can convert your primitive data from one type to another.
 ## Attributes
+Attributes are values assigned to entities of the geometry - the entities are points, vertices or primitives.
 In an attribute we can store anything that can be expressed as numbers. Declaring attributes in POPs allows us to create our own information for each point. They can hold data like Color, Normals, Velocity. With a `POPDAT` you can see the attributes for your points, vertex and primitives. You can also display it in a graph from by converting it into CHOP data.
 
 ### Build-In Attributes
@@ -106,6 +107,9 @@ You also can combine the components of different attributes into a new Result Sc
 ![From Float Attribute To Float3 Attribute With Math Img](/img/TD/SingleFloatAttributeTothree0.png)
 
 ![From Float Attribute To Float3 Attribute With MathMix Img](/img/TD/SingleFloatAttributeTothree.png)
+
+### From Float Attribute To Int
+If you want to have a int value instead of a float like in a `RandomPOP` go to `Overwrite Automatic Attribute` and set it to int
 
 ### Move Attribute between Attribute types
 `AttributeConvertPOP` allows to move attributes between point, vertex or primitive.
@@ -407,6 +411,11 @@ First is to create a uniform in the `MathMix` and assign the value from the CHOP
 ## Rendering
 To be able to render your POP data it needs to contain Primitive information. If you just instance from your POP data you don't need to have primitives, just the point information.
 
+### Texture Mapping
+By changing the `Tex` Attribute we can adapt how a texture is mapped onto our POP geometry.
+If you want to 
+![Changing Tex Attribute Img](/img/TD/ChangingTexAttributePOP.png)
+
 ## Copying Vs. Instancing
 Using instancing is faster and more performant than using `CopyPOP`. When you work with small instancing counts it might not be noticeable. Use instancing whenever possible.
 
@@ -442,3 +451,9 @@ p[id] = p.x * uLimitScale;
 You can create attributes with POPs and then later use these in for example a `GLSLMAT`
 
 When you want to pass attributes into glsl mat you need to pass from vertex shadr to pixel shader via in out
+
+## TracePOP
+Converts input texture based on the selected channel. It allows to output contour or surface. To have a trace wherever it is moving you can use an optical flow - threshold combination.
+`Resolution` modifier has impact on accuracy of trace, look and performance.
+
+to stabilize optical flow you can use a `FeedbackTOP` system. 

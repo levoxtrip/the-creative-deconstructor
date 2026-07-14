@@ -153,4 +153,59 @@ float d = rectSDF(o,vec2(0.2,0.1));
 ```
 So the order matters. If you first translate and then rotate the shape gets rotated around the translated center. If you first rotate and then translate the shape orbits around the origin.
 
+## Repetition
+When you want to create patterns or repetitions you can use `fract()`
+```
+vec2 pattern = fract(uv*cellSize);
+float d = circleSDF(pattern,0.5);
+``` 
+
+### Mirror Effect
+For a mirror effect we want on all sides the same color values for the corresponding pixels.
+
+.  |  .
+:  |  :
+```
+uv -= center;
+mirrored = abs(uv);
+```
+`abs()` function only returns the absolute value and folds the negative values into positive so everything on the sides with negative position values mirrors the positive values. To mirror only a sigle axis you would apply abs only to that axis.
+`vec2 xmirror = vec2(abs(uv.x),uv.y);`
+
+## Domain Warping
+In *domain warping* you distort the coordinate space using a function like sin() or noise.
+`uv.x += sin(uv.x *10.0)*cos(u_time);`
+The pixels x adress gets shifted and pixels at different positiosn get shifted by different amounts. 
+For an organic distortion you also can warp with noise.
+`uv += vec2(valueNoise(uv*3.0 +u_time),valueNoise(uv*3.0+u_time*100.0)*0.1;`
+
+## Polar Coordinates
+For certain operations it is more comfortable to work with *polar coordinates* then with the *Cartesian coordinates(x,y)*. Polar coordinates describe position as *how far from center and at what angle*.
+
+```
+float r = length(uv);
+float theta = atan(p.y,p.x);
+```
+atan returns the angle in radians, ranging from `-pi` and `pi`.
+The polar coordinates are useful for example radial repetitions.
+
+```
+float r = length(uv);
+float theta = atan(uv.y,uv.x);
+float n = 6.0; // num copies
+float sector = 6.2832/n;
+theta = mod(theta,sector) - sector *0.5;//x1
+vec2 q = vec2(cos(theta),sin(theta))*r;//x2
+float d = circleSDF(q-veec3(0.3,0.0),0.05);
+```
+x1 - mod() folds every angle into a range of 0 and section. `-sector *0.5` centers it to -sector/2 and sector/2
+x2 - converts it back to cartesian coordinates
+
+## Spiral Pattern
+For spiral pattern you add an angle to the radius of the polar coords.
+```
+float r = length(uv);
+float theta = atan(uv.y,uv.x);
+float spiral = fract(r*3.0-theta/6.2832);
+```
 

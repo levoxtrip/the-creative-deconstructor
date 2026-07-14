@@ -43,10 +43,14 @@ To set the parameters of your material, you could create custom event and then d
 
 
 ## To assign a material
-The meshes hav a material slot where you can assign the material. You also can drag it into the mesh in the scene. 
+The meshes have a material slot where you can assign the material. You also can drag it into the mesh in the scene. 
 In a blueprint you can use a `Set Material` node and pick your material.
 
 ## Glow up on interaction
-You make a material and then you create a parameter for `Emit color` and `Emit amount`. You multiply the color with the amount(e.g 30/40) and then plug into the `Emissive Color. In a blueprint you change the emit amount of the color.
+You make a material and then you create a parameter for `Emit color` and `Emit amount`. You multiply the color with the amount(e.g 30/40) and then plug into the `Emissive Color`. In a blueprint you change the emit amount of the color.
 
-
+## Material Instances
+To reuse a material for different cases where only specific aspects of the material are changed we can create instances of a material.
+You use a parent material as a base to make a variety of child materials each with it's own variation of the base using material parameters. 
+The nodes that you want to be variable you convert into *parameters*. You also can group the parameter by creating groups in the details. 
+`MI_` prefix for the instances.

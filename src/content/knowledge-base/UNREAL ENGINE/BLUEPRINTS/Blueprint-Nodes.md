@@ -47,6 +47,17 @@ If you want to avoid dragging the inputs of your function through the whole patc
 
 ## Variables
 You can assign your created variables to certain categories in the details page.
+
+You can make variables also a *class* reference which allows you to have a variable for classes that you for example want to spawn. To Show inherited variables click on the gear icon in the *my blueprint* area.
+
+## Blueprint Interfaces
+Unreal has interfaces for blueprints like in other programming languages. 
+`BPI_` prefix
+An interface is a collection of function names but without implementation of the function.
+You can add an interface in the class settings of your blueprint under `Implemented Interfaces`. Now the blueprint that implemented that interface has that function available. With `Does Object Implement Interface` we can check if interface is implemented by object. But we don't have to because the function only gets executed when the blueprint subscribes to the interface. To get the interface event into your blueprint you need to double click it in the `Implemented Interfaces` tab.
+
+
+
 ## Blueprint string utilities
 `self` is a reference to the actor itself. 
 
@@ -85,10 +96,25 @@ Blueprint classes can be used in all levels.
 
 Every level blueprint is an actor that owns the level blueprint and is able to reference instances of other actors in the level
 
-## Translation
+## Transformation 
 To get the location of the actor `Get Actor Location`
 
 With `Add Actor World Offset` you can move an actor by a *delta* vector. You can use it in `Event Tick` to move an actor every frame by a specific amount.
+
+
+`Get Actor Location` returns the current position of the actor as xyz
+
+`Set Actor Location` sets the actors position
+
+`Add Relative Location` or `Add World Offset` add to the current actor location.
+
+`Add Actor World Rotation` adds rotation to current actor rotation. It acts on the actors scene component so not about the local space but world space.
+
+You can create a random rotation with `Random Rotator`
+
+If you want to reposition your actors on runtime you have to set them movable. In *Details -> Transform -> Mobility*.
+
+`Add` allows you to add two values together
 
 ## Referencing actors in scene 
 With `Get All Actors Of Class` you can reference all the instances of an actor in your scene.
@@ -104,6 +130,8 @@ To be able to set a variable inside a blueprint that get's spawned from another 
 ## Destroy Actor
 With `Destroy Actor` you can remove an actor from your scene at runtime.
 
+## Show and Hide Actors
+`Set Actor Hidden In Game` allows you to hide and show actors on runtime.
 ## Assign mesh in blueprint
 First use `Add Static Mesh Component` then we need to set a mesh with `Set Static Mesh`.
 
@@ -142,7 +170,6 @@ Click on your custom event and then in the details panel on the right click on t
 
 ## Collisions
 
-
 To get a hit event when your mesh collides with the environment it needs collision information. Generally you don't use your mesh for collision but a more primitive shape that is less computational intensive. To see the collision geometry go to the static mesh `show(eye icon), complex/simple collisions`.
 
 Under `Collision` in the tab bar you can add a collision shape to your mesh. In the Details set the `Collision Complexity` to use `Simple Collision As Complex` - otherwise the mesh doesn't use the simplified collision body.
@@ -176,22 +203,6 @@ Create a color variable and then use a `Linear Color Set Random Hue` node to cre
 
 ### Get all the materials of actor
 With `Get Materials` you can get an array of materials that your actor has.
-
-## Transformation 
-`Get Actor Location` returns the current position of the actor as xyz
-
-`Set Actor Location` sets the actors position
-
-`Add Relative Location` or `Add World Offset` add to the current actor location.
-
-`Add Actor World Rotation` adds rotation to current actor rotation. It acts on the actors scene component so not about the local space but world space.
-
-You can create a random rotation with `Random Rotator`
-
-If you want to reposition your actors on runtime you have to set them movable. In *Details -> Transform -> Mobility*.
-
-`Add` allows you to add two values together
-
 ## Calculations
 With `Vector Length` node you can get the magnitude of a vector.
 
@@ -226,3 +237,7 @@ If you want to call a function owned by the game made inside another blueprint y
 Under `Class Settings` we can see what that class is based on/what the parent class is.
 
 ![Breaking up the hit event Img](/img/Unreal/ClassSettings.png)
+
+## Vectors
+`Select Vector` node allows you to pick a vector depending on a bool
+
